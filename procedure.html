@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>DermaPride · Procedure</title>
+<meta name="description" content="" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,30..100;1,9..144,300..700,30..100&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="editorial.css" />
+<link rel="stylesheet" href="cms/admin.css" />
+<style>
+/* ===========================================
+   Procedure page — dynamic sections renderer
+   =========================================== */
+.proc-hero {
+  padding: clamp(120px, 14vw, 200px) 0 clamp(64px, 8vw, 100px);
+  background: var(--cine-paper);
+  color: var(--cine-ink);
+}
+.proc-hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 6vw, 96px);
+  align-items: end;
+}
+.proc-hero .kicker {
+  font-family: var(--dp-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dp-teal-700);
+  margin-bottom: 18px;
+}
+.proc-hero h1 {
+  font-family: var(--dp-display);
+  font-weight: 300;
+  font-size: clamp(48px, 7vw, 104px);
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  margin: 0 0 8px;
+  color: var(--cine-ink);
+}
+.proc-hero h1 em {
+  font-style: italic;
+  font-variation-settings: 'opsz' 144, 'SOFT' 100;
+  color: var(--dp-teal-700);
+}
+.proc-hero .nameTh {
+  font-family: var(--dp-sans);
+  font-weight: 500;
+  font-size: clamp(22px, 2.5vw, 30px);
+  color: var(--cine-ink);
+  opacity: 0.7;
+  margin-bottom: 24px;
+}
+.proc-hero p.sub {
+  font-family: var(--dp-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--cine-ink);
+  opacity: 0.78;
+  max-width: 480px;
+  margin: 0;
+}
+.proc-hero-image {
+  aspect-ratio: 4/5;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--cine-cream);
+  box-shadow: 0 30px 70px -28px rgba(20, 36, 42, 0.22);
+}
+.proc-hero-image img { width: 100%; height: 100%; object-fit: cover; }
+
+.proc-crumb {
+  position: relative;
+  z-index: 5;
+  padding: 14px 0 0;
+}
+.proc-crumb-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--dp-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(20, 36, 42, 0.6);
+}
+.proc-crumb-inner a { color: inherit; text-decoration: none; }
+.proc-crumb-inner a:hover { color: var(--dp-teal-700); }
+
+/* Section base */
+.proc-sec {
+  padding: clamp(64px, 9vw, 120px) 0;
+}
+.proc-sec.is-paper { background: var(--cine-paper); }
+.proc-sec.is-cream { background: var(--cine-cream); }
+.proc-sec.is-dark  { background: var(--cine-black); color: var(--cine-paper); }
+
+.proc-twocol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 6vw, 90px);
+  align-items: center;
+}
+.proc-sec.is-reverse .proc-twocol { direction: rtl; }
+.proc-sec.is-reverse .proc-twocol > * { direction: ltr; }
+@media (max-width: 900px) {
+  .proc-twocol { grid-template-columns: 1fr; }
+  .proc-sec.is-reverse .proc-twocol { direction: ltr; }
+}
+
+.proc-copy .eyebrow {
+  font-family: var(--dp-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dp-teal-700);
+  margin-bottom: 16px;
+}
+.proc-copy h2 {
+  font-family: var(--dp-display);
+  font-weight: 300;
+  font-size: clamp(32px, 4vw, 56px);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: inherit;
+  margin: 0 0 18px;
+  text-wrap: balance;
+}
+.proc-copy h2 em { font-style: italic; color: var(--dp-teal-700); }
+.proc-sec.is-dark .proc-copy h2 em { color: var(--dp-teal-300); }
+.proc-copy p, .proc-copy .body {
+  font-family: var(--dp-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  color: inherit;
+  opacity: 0.82;
+  margin: 0 0 18px;
+  white-space: pre-wrap;
+}
+.proc-copy .body:last-child { margin-bottom: 0; }
+.proc-copy .price {
+  margin-top: 24px;
+  padding: 18px 22px;
+  background: rgba(26, 150, 143, 0.08);
+  border-left: 2px solid var(--dp-teal-700);
+  border-radius: 0 8px 8px 0;
+  display: inline-flex; align-items: baseline; gap: 12px;
+}
+.proc-copy .price .lbl { font-family: var(--dp-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.65; }
+.proc-copy .price .val { font-family: var(--dp-display); font-weight: 350; font-size: 26px; letter-spacing: -0.02em; color: var(--dp-teal-800); }
+.proc-copy .tags { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 6px; }
+.proc-copy .tag {
+  padding: 5px 11px;
+  background: var(--cine-paper);
+  border: 1px solid rgba(20,36,42,0.12);
+  border-radius: 999px;
+  font-family: var(--dp-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cine-ink);
+}
+.proc-sec.is-dark .proc-copy .tag { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); color: var(--cine-paper); }
+
+/* Single image */
+.proc-image-frame {
+  position: relative;
+  aspect-ratio: 4/5;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--cine-cream);
+  box-shadow: 0 30px 70px -28px rgba(20, 36, 42, 0.22);
+}
+.proc-image-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Slider */
+.proc-slider {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 4/5;
+  background: var(--cine-cream);
+  box-shadow: 0 30px 70px -28px rgba(20, 36, 42, 0.22);
+}
+.proc-slider .track {
+  display: flex;
+  width: 100%; height: 100%;
+  transition: transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.proc-slider .slide { flex: 0 0 100%; height: 100%; }
+.proc-slider .slide img { width: 100%; height: 100%; object-fit: cover; }
+.proc-slider .nav {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; z-index: 2;
+}
+.proc-slider .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  cursor: pointer; border: none;
+  transition: background 200ms ease, transform 200ms ease;
+}
+.proc-slider .dot.is-active { background: white; transform: scale(1.25); }
+.proc-slider .arrows {
+  position: absolute; top: 50%; left: 12px; right: 12px;
+  transform: translateY(-50%);
+  display: flex; justify-content: space-between;
+  pointer-events: none;
+  z-index: 2;
+}
+.proc-slider .arrows button {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.92); border: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; pointer-events: auto;
+  color: var(--cine-ink);
+  transition: background 160ms ease, transform 160ms ease;
+}
+.proc-slider .arrows button:hover { background: white; transform: scale(1.05); }
+.proc-slider .arrows svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+.proc-slider .thumbs {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.proc-slider-thumb {
+  aspect-ratio: 1; border-radius: 4px; overflow: hidden;
+  background: var(--cine-cream); cursor: pointer; border: 2px solid transparent;
+  transition: border-color 160ms ease;
+}
+.proc-slider-thumb.is-active { border-color: var(--dp-teal-700); }
+.proc-slider-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Before / after layout */
+.proc-ba {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+  border-radius: 8px; overflow: hidden;
+}
+.proc-ba > div { position: relative; aspect-ratio: 1; background: var(--cine-cream); }
+.proc-ba > div img { width: 100%; height: 100%; object-fit: cover; }
+.proc-ba > div span {
+  position: absolute; top: 12px; left: 12px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 4px;
+  font-family: var(--dp-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--cine-ink);
+}
+.proc-ba > div:last-child span { background: var(--dp-teal-700); color: white; }
+
+/* CTA section */
+.proc-cta-block {
+  text-align: center;
+  padding: clamp(60px, 8vw, 100px) 24px;
+  border-radius: 12px;
+  background: var(--cine-black);
+  color: var(--cine-paper);
+}
+.proc-cta-block h2 {
+  font-family: var(--dp-display);
+  font-weight: 300;
+  font-size: clamp(32px, 4.5vw, 56px);
+  letter-spacing: -0.025em;
+  margin: 0 0 14px;
+  color: var(--cine-paper);
+}
+.proc-cta-block h2 em { font-style: italic; color: var(--dp-teal-300); }
+.proc-cta-block p { font-family: var(--dp-sans); font-size: 16px; line-height: 1.6; max-width: 480px; margin: 0 auto 24px; opacity: 0.78; }
+.proc-cta-block .actions { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+/* Pricing list */
+.proc-pricing { background: var(--cine-paper); border-radius: 12px; padding: 36px; }
+.proc-pricing h3 { font-family: var(--dp-display); font-weight: 350; font-size: 28px; letter-spacing: -0.02em; color: var(--cine-ink); margin: 0 0 18px; }
+.proc-pricing .body { font-family: var(--dp-sans); font-size: 15px; line-height: 1.85; color: var(--cine-ink); opacity: 0.85; white-space: pre-wrap; }
+
+/* Reviews grid inside procedure */
+.proc-reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+@media (max-width: 900px) { .proc-reviews-grid { grid-template-columns: 1fr; } }
+.proc-rev {
+  background: var(--cine-paper);
+  border: 1px solid rgba(20,36,42,0.08);
+  border-radius: 8px;
+  padding: 26px;
+}
+.proc-rev .stars { color: #F2B636; letter-spacing: 3px; font-size: 13px; margin-bottom: 10px; }
+.proc-rev p { font-family: var(--dp-sans); font-size: 14px; line-height: 1.7; color: var(--cine-ink); opacity: 0.85; margin: 0 0 14px; }
+.proc-rev footer { display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid rgba(20,36,42,0.08); }
+.proc-rev .nm { font-family: var(--dp-sans); font-weight: 600; font-size: 13px; color: var(--cine-ink); }
+.proc-rev .tr { font-family: var(--dp-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.55; }
+
+/* Empty state */
+.proc-empty {
+  padding: 100px 24px;
+  text-align: center;
+  background: var(--cine-paper);
+}
+.proc-empty h3 {
+  font-family: var(--dp-display); font-weight: 300; font-size: 36px;
+  letter-spacing: -0.025em; margin: 0 0 12px; color: var(--cine-ink);
+}
+.proc-empty h3 em { font-style: italic; color: var(--dp-teal-700); }
+.proc-empty p { font-family: var(--dp-sans); font-size: 15px; color: rgba(20,36,42,0.6); max-width: 460px; margin: 0 auto 24px; line-height: 1.6; }
+</style>
+</head>
+<body class="dpe-no-overflow">
+
+<!-- Reused minimal nav -->
+<header class="dpe-nav is-pinned" id="dpeNav">
+  <a class="dpe-nav-logo" href="DermaPride Clinics.html">
+    <span class="logo-text">DermaPride<em>.</em></span>
+    <img src="assets/logo.jpg" alt="DermaPride" />
+  </a>
+  <nav class="dpe-nav-rail">
+    <a href="DermaPride Clinics.html">Home</a>
+    <a href="DermaPride Clinics.html#doctor">The Doctor</a>
+    <a href="DermaPride Clinics.html#impressions">Voices</a>
+    <a href="DermaPride Clinics.html#branches">Branches</a>
+    <a href="DermaPride Clinics.html#booking">Booking</a>
+  </nav>
+  <div class="dpe-nav-end">
+    <a class="dpe-nav-phone" href="tel:0658598599" id="navPhone">065 859 8599</a>
+    <a class="dpe-nav-cta" href="DermaPride Clinics.html#booking">
+      Book a Visit
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+  </div>
+</header>
+
+<main id="procRoot">
+  <!-- Renders below -->
+</main>
+
+<footer class="dpe-footer">
+  <div class="dpe-shell">
+    <div class="dpe-footer-grid">
+      <div class="brand">
+        <h2>DermaPride<em>.</em></h2>
+        <p>เสน่ห์ที่สร้างจากความซื่อตรง และหลักการแห่งสุนทรียศิลป์ — โดย พญ.อาภา สังขนุกิจ.</p>
+      </div>
+      <div>
+        <h5>Visit</h5>
+        <ul>
+          <li><a href="DermaPride Clinics.html#branches">สาขาวัชรพล</a></li>
+          <li><a href="DermaPride Clinics.html#branches">สาขาราชพฤกษ์</a></li>
+          <li><a href="tel:0658598599">065-859-8599</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Care</h5>
+        <ul>
+          <li><a href="DermaPride Clinics.html#doctor">เกี่ยวกับแพทย์</a></li>
+          <li><a href="DermaPride Clinics.html#faq">คำถามที่พบบ่อย</a></li>
+          <li><a href="DermaPride Clinics.html#booking">นัดหมาย</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Procedures</h5>
+        <ul>
+          <li><a href="procedure.html?cat=botox">Botox</a></li>
+          <li><a href="procedure.html?cat=filler">Filler</a></li>
+          <li><a href="procedure.html?cat=laser">Laser</a></li>
+          <li><a href="procedure.html?cat=skin-booster">Skin Booster</a></li>
+          <li><a href="procedure.html?cat=meso">Meso</a></li>
+          <li><a href="procedure.html?cat=vitamin">Vitamin</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="dpe-footer-bottom">
+      <div>© 2026 DermaPride Clinics · All rights reserved.</div>
+      <a class="dpe-footer-admin-link" id="adminLink">Admin Access</a>
+    </div>
+  </div>
+</footer>
+
+<script src="cms/engine.js"></script>
+<script src="cms/admin.js"></script>
+<script>
+(function() {
+  // Read category from ?cat=botox
+  const params = new URLSearchParams(location.search);
+  const slug = params.get('cat') || 'botox';
+  const root = document.getElementById('procRoot');
+
+  function render() {
+    const proc = CMS.procedures.get(slug);
+    if (!proc) {
+      root.innerHTML = `<section class="proc-empty"><h3>ไม่พบหน้านี้</h3><p>หมวด "${slug}" ไม่ได้ถูกตั้งค่าไว้</p><a class="dpe-btn-cinema" href="DermaPride Clinics.html" style="background: #14242A; color: #FAF7F2;">กลับหน้าหลัก</a></section>`;
+      return;
+    }
+
+    // Set page title & meta
+    const seoTitle = (proc.seo && proc.seo.title) || `${proc.name} · DermaPride Clinics`;
+    document.title = seoTitle;
+    const metaDesc = document.querySelector('meta[name=description]');
+    if (metaDesc && proc.seo && proc.seo.description) metaDesc.setAttribute('content', proc.seo.description);
+
+    let html = `
+      <div class="dpe-shell proc-crumb">
+        <div class="proc-crumb-inner">
+          <a href="DermaPride Clinics.html">← Home</a>
+          <span style="opacity:0.4;">/</span>
+          <span>Procedures</span>
+          <span style="opacity:0.4;">/</span>
+          <span style="color: var(--dp-teal-700);">${escapeHTML(proc.name)}</span>
+        </div>
+      </div>
+
+      <section class="proc-hero">
+        <div class="dpe-shell">
+          <div class="proc-hero-inner">
+            <div>
+              <div class="kicker">${escapeHTML(proc.kicker || 'Procedures')}</div>
+              <h1><em>${escapeHTML(proc.headline || proc.name)}</em></h1>
+              ${proc.nameTh ? `<div class="nameTh">${escapeHTML(proc.nameTh)}</div>` : ''}
+              <p class="sub">${escapeHTML(proc.sub || '')}</p>
+            </div>
+            ${proc.heroImage ? `<div class="proc-hero-image"><img src="${escapeAttr(proc.heroImage)}" alt="" /></div>` : '<div></div>'}
+          </div>
+        </div>
+      </section>
+    `;
+
+    const sections = (proc.sections || []).filter(s => s.visible !== false);
+
+    if (sections.length === 0) {
+      html += `
+        <section class="proc-empty">
+          <h3>เนื้อหา <em>กำลังถูกเตรียม</em></h3>
+          <p>หน้าหัตถการนี้ยังไม่มีเนื้อหา — ทีมงานกำลังเตรียมข้อมูลให้ในเร็ว ๆ นี้ ระหว่างนี้ปรึกษาแพทย์ผ่าน Facebook ของเราได้เลย</p>
+          <a class="dpe-btn-cinema" href="DermaPride Clinics.html#booking" style="background: #14242A; color: #FAF7F2;">นัดหมายปรึกษาฟรี
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </section>
+      `;
+    } else {
+      sections.forEach((sec, idx) => {
+        const reverse = idx % 2 === 1;
+        const tone = sec.type === 'cta' ? 'is-dark' : (idx % 2 === 0 ? 'is-paper' : 'is-cream');
+        html += renderSection(sec, idx, reverse, tone);
+      });
+    }
+
+    root.innerHTML = html;
+
+    // Bind sliders
+    root.querySelectorAll('.proc-slider').forEach(s => initSlider(s));
+  }
+
+  function renderSection(sec, idx, reverse, tone) {
+    const num = String(idx + 1).padStart(2, '0');
+
+    const copyBlock = `
+      <div class="proc-copy">
+        ${sec.subtitle ? `<div class="eyebrow">${escapeHTML(sec.subtitle)}</div>` : `<div class="eyebrow">— ${num}</div>`}
+        ${sec.title ? `<h2>${parseAccent(sec.title)}</h2>` : ''}
+        ${sec.body ? `<div class="body">${escapeHTML(sec.body)}</div>` : ''}
+        ${sec.price ? `<div class="price"><span class="lbl">Highlight</span><span class="val">${escapeHTML(sec.price)}</span></div>` : ''}
+        ${sec.tags ? `<div class="tags">${sec.tags.split(',').map(t => `<span class="tag">${escapeHTML(t.trim())}</span>`).join('')}</div>` : ''}
+      </div>
+    `;
+
+    if (sec.type === 'image-text') {
+      const img = (sec.images && sec.images[0]) ? sec.images[0].src : '';
+      const imgBlock = img
+        ? `<div class="proc-image-frame"><img src="${escapeAttr(img)}" alt="" /></div>`
+        : `<div class="proc-image-frame"><div style="display:flex; align-items:center; justify-content:center; height:100%; font-family: var(--dp-sans); font-size: 13px; color: rgba(20,36,42,0.4);">+ Image</div></div>`;
+      return `
+        <section class="proc-sec ${tone}${reverse ? ' is-reverse' : ''}">
+          <div class="dpe-shell"><div class="proc-twocol">${imgBlock}${copyBlock}</div></div>
+        </section>
+      `;
+    }
+
+    if (sec.type === 'slider') {
+      const slides = sec.images || [];
+      const sliderBlock = slides.length ? `
+        <div class="proc-slider" data-slider>
+          <div class="track">
+            ${slides.map(s => `<div class="slide"><img src="${escapeAttr(s.src)}" alt="" /></div>`).join('')}
+          </div>
+          ${slides.length > 1 ? `
+            <div class="arrows">
+              <button data-prev><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <button data-next><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+            <div class="nav">${slides.map((_, i) => `<button class="dot${i === 0 ? ' is-active' : ''}" data-idx="${i}"></button>`).join('')}</div>
+          ` : ''}
+        </div>
+        ${slides.length > 1 ? `
+          <div class="thumbs">
+            ${slides.map((s, i) => `<div class="proc-slider-thumb${i === 0 ? ' is-active' : ''}" data-thumb="${i}"><img src="${escapeAttr(s.src)}" alt=""></div>`).join('')}
+          </div>` : ''}
+      ` : `<div class="proc-image-frame"><div style="display:flex; align-items:center; justify-content:center; height:100%; font-family: var(--dp-sans); font-size: 13px; color: rgba(20,36,42,0.4);">+ Add slider images</div></div>`;
+      return `
+        <section class="proc-sec ${tone}${reverse ? ' is-reverse' : ''}">
+          <div class="dpe-shell"><div class="proc-twocol"><div>${sliderBlock}</div>${copyBlock}</div></div>
+        </section>
+      `;
+    }
+
+    if (sec.type === 'before-after') {
+      const a = sec.images && sec.images[0], b = sec.images && sec.images[1];
+      const baBlock = (a || b) ? `
+        <div class="proc-ba">
+          <div>${a ? `<img src="${escapeAttr(a.src)}" alt="" />` : ''}<span>Before</span></div>
+          <div>${b ? `<img src="${escapeAttr(b.src)}" alt="" />` : ''}<span>After</span></div>
+        </div>
+      ` : `<div class="proc-image-frame"><div style="display:flex; align-items:center; justify-content:center; height:100%; font-family: var(--dp-sans); font-size: 13px; color: rgba(20,36,42,0.4);">+ Before / after images</div></div>`;
+      return `
+        <section class="proc-sec ${tone}${reverse ? ' is-reverse' : ''}">
+          <div class="dpe-shell"><div class="proc-twocol"><div>${baBlock}</div>${copyBlock}</div></div>
+        </section>
+      `;
+    }
+
+    if (sec.type === 'pricing') {
+      return `
+        <section class="proc-sec ${tone}">
+          <div class="dpe-shell" style="max-width: 880px;">
+            <div class="proc-pricing">
+              ${sec.title ? `<h3>${parseAccent(sec.title)}</h3>` : ''}
+              ${sec.body ? `<div class="body">${escapeHTML(sec.body)}</div>` : ''}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    if (sec.type === 'reviews') {
+      const items = CMS.reviews.list().slice(0, 6);
+      const grid = items.length ? items.map(r => `
+        <article class="proc-rev">
+          <div class="stars">${'★'.repeat(r.stars || 5)}</div>
+          <p>${escapeHTML(r.body)}</p>
+          <footer><span class="nm">${escapeHTML(r.name || '—')}</span><span class="tr">${escapeHTML(r.treatment || '')}</span></footer>
+        </article>
+      `).join('') : '<div style="text-align:center; padding: 40px; color: rgba(20,36,42,0.5); font-family: var(--dp-sans);">ยังไม่มีรีวิว — เพิ่มได้จาก Admin → Reviews</div>';
+      return `
+        <section class="proc-sec ${tone}">
+          <div class="dpe-shell">
+            ${sec.title ? `<h2 style="font-family: var(--dp-display); font-weight: 300; font-size: clamp(32px, 4vw, 56px); letter-spacing: -0.025em; margin: 0 0 32px;">${parseAccent(sec.title)}</h2>` : ''}
+            <div class="proc-reviews-grid">${grid}</div>
+          </div>
+        </section>
+      `;
+    }
+
+    if (sec.type === 'cta') {
+      return `
+        <section class="proc-sec ${tone}">
+          <div class="dpe-shell">
+            <div class="proc-cta-block">
+              ${sec.title ? `<h2>${parseAccent(sec.title)}</h2>` : ''}
+              ${sec.body ? `<p>${escapeHTML(sec.body)}</p>` : ''}
+              <div class="actions">
+                <a class="dpe-btn-cinema" href="DermaPride Clinics.html#booking">นัดหมายปรึกษาฟรี</a>
+                <a class="dpe-btn-ghost-dark" href="https://www.facebook.com/DermaPrideClinic/" target="_blank" rel="noopener">ทักหา Facebook</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    return '';
+  }
+
+  function initSlider(s) {
+    const track = s.querySelector('.track');
+    const dots = s.querySelectorAll('.dot');
+    const thumbs = s.parentElement.querySelectorAll('.proc-slider-thumb');
+    const prev = s.querySelector('[data-prev]');
+    const next = s.querySelector('[data-next]');
+    let cur = 0;
+    const total = s.querySelectorAll('.slide').length;
+    const go = (i) => {
+      cur = (i + total) % total;
+      track.style.transform = `translateX(-${cur * 100}%)`;
+      dots.forEach((d, j) => d.classList.toggle('is-active', j === cur));
+      thumbs.forEach((d, j) => d.classList.toggle('is-active', j === cur));
+    };
+    dots.forEach(d => d.addEventListener('click', () => go(Number(d.dataset.idx))));
+    thumbs.forEach(d => d.addEventListener('click', () => go(Number(d.dataset.thumb))));
+    if (prev) prev.addEventListener('click', () => go(cur - 1));
+    if (next) next.addEventListener('click', () => go(cur + 1));
+  }
+
+  function parseAccent(s) {
+    // simple bracket-to-em parser: "Hello [world]" → "Hello <em>world</em>"
+    return escapeHTML(s).replace(/\[([^\]]+)\]/g, '<em>$1</em>');
+  }
+  function escapeHTML(s) { return String(s == null ? '' : s).replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c])); }
+  function escapeAttr(s) { return String(s == null ? '' : s).replace(/"/g, '&quot;'); }
+
+  render();
+  CMS.subscribe(render);
+
+  // Update contact phone from CMS
+  const phone = CMS.get('home.contact.phone');
+  if (phone) {
+    const navPhone = document.getElementById('navPhone');
+    if (navPhone) navPhone.textContent = phone;
+  }
+})();
+</script>
+
+</body>
+</html>
