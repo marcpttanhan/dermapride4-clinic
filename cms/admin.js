@@ -84,6 +84,16 @@
     `;
     document.body.appendChild(v);
 
+    // Logout button in sidebar footer
+    const foot = v.querySelector('.cms-aside-foot');
+    if (foot) {
+      const lb = document.createElement('button');
+      lb.textContent = 'Log out';
+      lb.style.cssText = 'display:block;width:100%;margin-top:.6rem;padding:.35rem;background:none;border:1px solid rgba(255,255,255,.2);border-radius:5px;color:inherit;font-size:.78rem;cursor:pointer;opacity:.7';
+      lb.addEventListener('click', _logout);
+      foot.appendChild(lb);
+    }
+
     // Build nav
     const nav = v.querySelector('#cmsNav');
     TABS.forEach(t => {
@@ -1309,14 +1319,112 @@
     setTimeout(() => t.remove(), 2200);
   }
 
+  // AUTH SYSTEM START
+  const _AUTH_KEY  = 'cms_auth_v1';
+  const _AUTH_USER = 'admin';
+  const _AUTH_PASS = 'admin123';
+
+  function _isAuth() { return localStorage.getItem(_AUTH_KEY) === '1'; }
+
+  function _showLoginModal(onSuccess) {
+    const prev = document.getElementById('cmsLoginModal');
+    if (prev) prev.remove();
+    const m = document.createElement('div');
+    m.id = 'cmsLoginModal';
+    m.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);font-family:inherit';
+    m.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:2rem 2.5rem;width:320px;max-width:90vw;box-shadow:0 24px 64px rgba(0,0,0,.3)">
+        <h2 style="margin:0 0 1.5rem;font-size:1.2rem;font-weight:600;color:#111">Admin Access</h2>
+        <div style="margin-bottom:.9rem">
+          <label style="display:block;font-size:.78rem;font-weight:500;color:#555;margin-bottom:.3rem">Username</label>
+          <input id="cmsLgUser" type="text" autocomplete="username"
+            style="width:100%;box-sizing:border-box;padding:.55rem .7rem;border:1px solid #d1d5db;border-radius:6px;font-size:.92rem;outline:none" />
+        </div>
+        <div style="margin-bottom:1.4rem">
+          <label style="display:block;font-size:.78rem;font-weight:500;color:#555;margin-bottom:.3rem">Password</label>
+          <input id="cmsLgPass" type="password" autocomplete="current-password"
+            style="width:100%;box-sizing:border-box;padding:.55rem .7rem;border:1px solid #d1d5db;border-radius:6px;font-size:.92rem;outline:none" />
+        </div>
+        <div id="cmsLgErr" style="display:none;color:#dc2626;font-size:.78rem;margin-bottom:.9rem">Invalid credentials. Please try again.</div>
+        <button id="cmsLgBtn" style="width:100%;padding:.6rem;background:#111;color:#fff;border:none;border-radius:6px;font-size:.92rem;font-weight:500;cursor:pointer">Sign in</button>
+        <button id="cmsLgCancel" style="width:100%;padding:.4rem;background:none;border:none;font-size:.82rem;color:#999;cursor:pointer;margin-top:.4rem">Cancel</button>
+      </div>`;
+    document.body.appendChild(m);
+
+    const uInp = m.querySelector('#cmsLgUser');
+    const pInp = m.querySelector('#cmsLgPass');
+    const err  = m.querySelector('#cmsLgErr');
+
+    function attempt() {
+      if (uInp.value === _AUTH_USER && pInp.value === _AUTH_PASS) {
+        localStorage.setItem(_AUTH_KEY, '1');
+        m.remove();
+        onSuccess();
+      } else {
+        err.style.display = 'block';
+        pInp.value = '';
+        pInp.focus();
+      }
+    }
+
+    m.querySelector('#cmsLgBtn').addEventListener('click', attempt);
+    m.querySelector('#cmsLgCancel').addEventListener('click', () => m.remove());
+    pInp.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+    uInp.addEventListener('keydown', e => { if (e.key === 'Enter') pInp.focus(); });
+    uInp.focus();
+  }
+
+  function _requireAuth(cb) {
+    if (_isAuth()) { cb(); return; }
+    _showLoginModal(cb);
+  }
+
+  function _logout() {
+    localStorage.removeItem(_AUTH_KEY);
+    closeCMS();
+  }
+  // AUTH SYSTEM END
+
+  // CMS WRITE GUARD START
+  // Runs at IIFE execution time — guards are in place before any user interaction.
+  // Wraps every CMS write method and every admin-namespace method so that calling
+  // them directly (e.g. window.CMS.set(...) from the console) silently returns
+  // unless the session is authenticated.
+  (function() {
+    var _writes = ['set', 'publish', 'discardDraft', 'resetAll', 'importJSON'];
+    _writes.forEach(function(fn) {
+      var orig = CMS[fn];
+      if (typeof orig !== 'function') return;
+      CMS[fn] = function() {
+        if (!_isAuth()) { console.warn('[CMS] Not authenticated — write blocked.'); return; }
+        return orig.apply(this, arguments);
+      };
+    });
+    ['media', 'sections', 'procedures', 'reviews'].forEach(function(ns) {
+      var obj = CMS[ns];
+      if (!obj) return;
+      Object.keys(obj).forEach(function(fn) {
+        var orig = obj[fn];
+        if (typeof orig !== 'function') return;
+        obj[fn] = function() {
+          if (!_isAuth()) { console.warn('[CMS] Not authenticated — ' + ns + '.' + fn + ' blocked.'); return; }
+          return orig.apply(this, arguments);
+        };
+      });
+    });
+  })();
+  // CMS WRITE GUARD END
+
   // ---------- Open/close ----------
   function openCMS() {
-    let v = document.getElementById('cmsVeil');
-    if (!v) { build(); v = document.getElementById('cmsVeil'); }
-    v.classList.add('is-open'); v.setAttribute('aria-hidden','false');
-    document.body.style.overflow = 'hidden';
-    setTab(activeTab);
-    refreshFlag();
+    _requireAuth(() => {
+      let v = document.getElementById('cmsVeil');
+      if (!v) { build(); v = document.getElementById('cmsVeil'); }
+      v.classList.add('is-open'); v.setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+      setTab(activeTab);
+      refreshFlag();
+    });
   }
   function closeCMS() {
     const v = document.getElementById('cmsVeil');
