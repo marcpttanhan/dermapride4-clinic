@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    DermaPride CMS — Admin UI v2 (visual & direct)
    ============================================================ */
 (function () {
@@ -107,7 +107,23 @@
 
     // Bar actions
     v.querySelector('#cmsClose').addEventListener('click', closeCMS);
-    v.querySelector('#cmsPublish').addEventListener('click', () => { CMS.publish(); toast('Published — your changes are live.'); refreshFlag(); });
+    v.querySelector('#cmsPublish').addEventListener('click', async () => {
+      console.log('[ADMIN] Publish button clicked');
+      const btn = v.querySelector('#cmsPublish');
+      const prev = btn.textContent;
+      btn.textContent = 'Publishing…'; btn.disabled = true;
+      try {
+        console.log('[ADMIN] calling CMS.publish() …');
+        await CMS.publish();
+        console.log('[ADMIN] CMS.publish() resolved — success');
+        toast('Published — changes are now live on all devices.');
+      } catch (e) {
+        console.error('[ADMIN] CMS.publish() FAILED:', e);
+        toast('Publish failed — ' + (e && e.message ? e.message : 'check console'));
+      } finally {
+        btn.textContent = prev; btn.disabled = false; refreshFlag();
+      }
+    });
     v.querySelector('#cmsDiscard').addEventListener('click', () => {
       if (confirm('Discard unpublished changes?')) { CMS.discardDraft(); renderTab(); toast('Draft discarded.'); refreshFlag(); }
     });
@@ -1285,13 +1301,20 @@
         d.addEventListener('click', () => { cb(m.src); close(); });
         grid.appendChild(d);
       });
-      // built-in assets convenience
-      const builtin = ['welcome-hero','in-clinic','doctor','doctor-2','doctor-3','model-customer','beautiful-customer','happy-customer','slogan-1','slogan-2','slogan-3','slogan-4','slogan-5','ba-1','ba-2','ba-3','ba-4','ba-5','ba-6','ba-7','ba-8','ba-9','ba-10','ba-11','ba-12','clinic-ratchapruk-1','clinic-ratchapruk-2','clinic-ratchapruk-3','clinic-watcharaphon-1','clinic-watcharaphon-2','lifestyle-1','banner'];
-      builtin.forEach(name => {
-        const src = `assets/${name}.jpg`;
+      // static / built-in assets as quick picks
+      [
+        'assets/doctor.jpg','assets/doctor-2.jpg','assets/welcome-hero.jpg',
+        'assets/welcome-zone.jpg','assets/welcome-zone-2.jpg','assets/banner.jpg',
+        'assets/ba-1.jpg','assets/ba-2.jpg','assets/ba-3.jpg','assets/ba-4.jpg',
+        'assets/ba-5.jpg','assets/ba-7.jpg','assets/ba-10.jpg','assets/ba-12.jpg',
+        'assets/clinic-watcharaphon-1.jpg','assets/clinic-watcharaphon-2.jpg',
+        'assets/clinic-ratchapruk-1.jpg','assets/clinic-ratchapruk-2.jpg','assets/clinic-ratchapruk-3.jpg',
+        'assets/slogan-1.jpg','assets/slogan-2.jpg','assets/slogan-3.jpg','assets/slogan-4.jpg','assets/slogan-5.jpg',
+        'assets/lifestyle-1.jpg','assets/in-clinic.jpg','assets/logo.jpg'
+      ].forEach(src => {
         const d = document.createElement('div');
         d.className = 'cms-media-item';
-        d.innerHTML = `<img src="${src}" alt="" /><div class="meta">${name}</div>`;
+        d.innerHTML = `<img src="${src}" alt="" /><div class="meta">${src.split('/').pop()}</div>`;
         d.addEventListener('click', () => { cb(src); close(); });
         grid.appendChild(d);
       });
@@ -1299,20 +1322,25 @@
     refresh();
     ov.querySelector('#mpUp').addEventListener('click', () => ov.querySelector('#mpInp').click());
     ov.querySelector('#mpInp').addEventListener('change', async e => {
-      for (const f of e.target.files) await CMS.media.add(f);
+      const files = e.target.files;
+      if (!files.length) return;
+      for (const f of files) {
+        if (f.size > 8 * 1024 * 1024) { toast(`${f.name} too large (max 8MB)`); continue; }
+        await CMS.media.add(f);
+      }
       refresh();
     });
   }
 
-  function openPageBtn(href, label) {
-    return `<a href="${href}" target="_blank" rel="noopener" class="cms-btn cms-btn--ghost" style="margin-top: 8px;">${I.external} ${label}</a>`;
+  // ---------- Utilities ----------
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function openPageBtn(url, label) {
+    return `<a class="cms-open-btn" href="${esc(url)}" target="_blank" rel="noopener">${I.external} ${esc(label)}</a>`;
   }
-
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[c])); }
 
   function toast(msg) {
     const t = document.createElement('div');
-    t.style.cssText = 'position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); padding: 12px 20px; background: #14242A; color: white; border-radius: 10px; font-family: Anuphan; font-size: 13px; z-index: 2000; box-shadow: 0 14px 36px -12px rgba(0,0,0,0.5);';
+    t.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);padding:12px 20px;background:#14242A;color:#fff;border-radius:10px;font-family:Anuphan,sans-serif;font-size:13px;z-index:99998;box-shadow:0 14px 36px -12px rgba(0,0,0,.5);white-space:nowrap;';
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => { t.style.transition = 'opacity 300ms'; t.style.opacity = '0'; }, 1800);
@@ -1320,9 +1348,9 @@
   }
 
   // AUTH SYSTEM START
-  const _AUTH_KEY  = 'cms_auth_v1';
-  const _AUTH_USER = 'admin';
-  const _AUTH_PASS = 'admin123';
+  const _AUTH_KEY  = 'cms_auth_v2';
+  const _AUTH_USER = 'derma';
+  const _AUTH_PASS = 'admin1234';
 
   function _isAuth() { return localStorage.getItem(_AUTH_KEY) === '1'; }
 
@@ -1386,10 +1414,6 @@
   // AUTH SYSTEM END
 
   // CMS WRITE GUARD START
-  // Runs at IIFE execution time — guards are in place before any user interaction.
-  // Wraps every CMS write method and every admin-namespace method so that calling
-  // them directly (e.g. window.CMS.set(...) from the console) silently returns
-  // unless the session is authenticated.
   (function() {
     var _writes = ['set', 'publish', 'discardDraft', 'resetAll', 'importJSON'];
     _writes.forEach(function(fn) {
