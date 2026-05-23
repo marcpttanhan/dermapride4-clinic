@@ -381,52 +381,14 @@
         <div class="dpe-ch-num">Chapter 10 · Curated Offerings</div>
         <h2 class="dpe-h-display" style="margin-top: 20px;">โปรโมชั่น<br><em>เดือนนี้.</em></h2>
       </div>
-      <p data-veil data-veil-delay="1">
+      <p data-veil data-veil-delay="1" data-cms-text="home.offers.sub">
         แคมเปญที่คัดสรร — เพื่อให้คุณเริ่มต้นเส้นทางความงามได้ง่ายขึ้น
         ใช้ได้ทั้งสาขาวัชรพลและราชพฤกษ์
       </p>
     </div>
 
-    <div class="dpe-offer-list">
-      <a class="dpe-offer" href="#booking" data-veil>
-        <div class="dpe-offer-thumb"><img src="assets/slogan-2.jpg" alt="" /></div>
-        <div class="dpe-offer-name"><em>First</em> Consultation<span class="th">ปรึกษาแพทย์ + วิเคราะห์ผิวครั้งแรก</span></div>
-        <div class="dpe-offer-tag">Signature</div>
-        <div class="dpe-offer-price"><span class="was">฿ 1,200</span>ฟรี</div>
-        <div class="dpe-offer-arrow"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
-      </a>
-
-      <a class="dpe-offer" href="#booking" data-veil>
-        <div class="dpe-offer-thumb"><img src="assets/ba-5.jpg" alt="" /></div>
-        <div class="dpe-offer-name"><em>Botox</em> Slim Face<span class="th">โบท็อกซ์เรียวกราม Allergan</span></div>
-        <div class="dpe-offer-tag">Limited</div>
-        <div class="dpe-offer-price"><span class="was">฿ 6,500</span>฿ 3,900</div>
-        <div class="dpe-offer-arrow"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
-      </a>
-
-      <a class="dpe-offer" href="#booking" data-veil>
-        <div class="dpe-offer-thumb"><img src="assets/ba-4.jpg" alt="" /></div>
-        <div class="dpe-offer-name"><em>Restylane</em> Under-eye<span class="th">ฟิลเลอร์ใต้ตา 1 cc</span></div>
-        <div class="dpe-offer-tag">Best Seller</div>
-        <div class="dpe-offer-price"><span class="was">฿ 12,000</span>฿ 8,900</div>
-        <div class="dpe-offer-arrow"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
-      </a>
-
-      <a class="dpe-offer" href="#booking" data-veil>
-        <div class="dpe-offer-thumb"><img src="assets/ba-10.jpg" alt="" /></div>
-        <div class="dpe-offer-name"><em>Meso</em> Reverse Aging<span class="th">ย้อนวัย · ผิวกระจก</span></div>
-        <div class="dpe-offer-tag">New</div>
-        <div class="dpe-offer-price"><span class="was">฿ 4,000</span>฿ 2,500</div>
-        <div class="dpe-offer-arrow"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
-      </a>
-
-      <a class="dpe-offer" href="#booking" data-veil>
-        <div class="dpe-offer-thumb"><img src="assets/lifestyle-1.jpg" alt="" /></div>
-        <div class="dpe-offer-name"><em>Vitamin</em> White Plus<span class="th">วิตามินผิว IV Drip</span></div>
-        <div class="dpe-offer-tag">Wellness</div>
-        <div class="dpe-offer-price"><span class="was">฿ 1,900</span>฿ 1,290</div>
-        <div class="dpe-offer-arrow"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></div>
-      </a>
+    <div id="offerList" class="dpe-offer-list">
+      <!-- Rendered dynamically from CMS.home.offers.items -->
     </div>
 
     <p style="margin-top: 36px; font-family: var(--dp-mono); font-size: 11px; letter-spacing: 0.05em; color: var(--cine-ink); opacity: 0.55;" data-veil>
@@ -932,6 +894,35 @@
   }
   function escapeRev(s){ return String(s||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 
+  // Converts [bracket text] → <em>bracket text</em> after HTML-escaping, safe against XSS.
+  function bracketTitle(s) {
+    return escapeRev(String(s || '')).replace(/\[([^\]]+)\]/g, '<em>$1</em>');
+  }
+
+  function renderOffersFromCMS() {
+    if (!window.CMS) return;
+    const host = document.getElementById('offerList');
+    if (!host) return;
+    const items = (CMS.get('home.offers.items') || []).filter(it => it.visible !== false);
+    if (!items.length) { host.innerHTML = ''; return; }
+    const SVG_ARROW = '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>';
+    host.innerHTML = items.map(it => {
+      const href = escapeRev(it.ctaHref || '#booking');
+      const img  = it.image ? `<img src="${escapeRev(it.image)}" alt="" />` : '';
+      const was  = it.was  ? `<span class="was">${escapeRev(it.was)}</span>` : '';
+      return `<a class="dpe-offer" href="${href}">
+        <div class="dpe-offer-thumb">${img}</div>
+        <div class="dpe-offer-name">${bracketTitle(it.title || '')}<span class="th">${escapeRev(it.sub || '')}</span></div>
+        <div class="dpe-offer-tag">${escapeRev(it.tag || '')}</div>
+        <div class="dpe-offer-price">${was}${escapeRev(it.price || '')}</div>
+        <div class="dpe-offer-arrow">${SVG_ARROW}</div>
+      </a>`;
+    }).join('');
+    host.querySelectorAll('.dpe-offer').forEach(el => {
+      if (!el.hasAttribute('data-veil')) { el.setAttribute('data-veil', ''); io.observe(el); }
+    });
+  }
+
   function renderPhilosophyFromCMS() {
     if (!window.CMS) return;
     const host = document.getElementById('pillarsList');
@@ -970,7 +961,7 @@
     });
   }
 
-  function renderCMSBlocks() { renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); }
+  function renderCMSBlocks() { renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); }
 
   // Treatments / Procedure category grid — pulled from CMS
   function renderTreatmentsFromCMS() {
