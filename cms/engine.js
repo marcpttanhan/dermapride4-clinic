@@ -279,8 +279,8 @@
         phone: '065-859-8599',
         facebook: 'https://www.facebook.com/DermaPrideClinic/',
         line: 'https://line.me/R/ti/p/@dermaprideclinic',
-        instagram: '',
-        tiktok: ''
+        instagram: 'https://www.instagram.com/dermaprideclinics/',
+        tiktok: 'https://www.tiktok.com/@drarpaartistdoctor'
       },
       branches: [
         {
