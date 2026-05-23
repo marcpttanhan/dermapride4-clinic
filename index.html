@@ -30,7 +30,7 @@
   <nav class="dpe-nav-rail">
     <a href="#top">Home</a>
     <a href="#doctor">Doctor</a>
-    <a href="#botox">Treatments</a>
+    <a href="#treatments">Treatments</a>
     <a href="#results">Results</a>
     <a href="#impressions">Voices</a>
     <a href="#branches">Branches</a>
@@ -39,6 +39,7 @@
 
   <div class="dpe-nav-end">
     <a class="dpe-nav-phone" href="tel:0658598599" data-cms-text="home.contact.phone">065 859 8599</a>
+    <a class="dpe-nav-phone" href="tel:0957898595">095 789 8595</a>
     <a class="dpe-nav-cta" href="#booking">
       Book a Visit
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
@@ -495,7 +496,7 @@
           <div class="th">อมอร์ วิลเลจ ราชพฤกษ์ นนทบุรี</div>
           <div class="dpe-branch-info">
             <div><div class="k">License</div><div class="v">10101033360</div></div>
-            <div><div class="k">Phone</div><div class="v">065-859-8599</div></div>
+            <div><div class="k">Phone</div><div class="v">095-789-8595</div></div>
             <div><div class="k">Style</div><div class="v">บูทีค · เงียบสงบ</div></div>
             <div><div class="k">Access</div><div class="v">MRT สายสีม่วง</div></div>
           </div>
@@ -508,7 +509,7 @@
             เปิดใน Google Maps
             <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
           </a>
-          <a class="dpe-btn-ghost-dark" style="color: var(--cine-ink); border-color: var(--cine-rule); padding: 12px 18px; font-size: 13px;" href="tel:0658598599">โทรสาขา</a>
+          <a class="dpe-btn-ghost-dark" style="color: var(--cine-ink); border-color: var(--cine-rule); padding: 12px 18px; font-size: 13px;" href="tel:0957898595">โทรสาขา</a>
         </div>
       </article>
 
@@ -605,7 +606,7 @@
 
         <div class="dpe-form-success">
           <div style="font-family: var(--dp-display); font-size: 32px; font-weight: 350; letter-spacing: -0.02em; color: var(--dp-teal-700);">ส่งคำขอเรียบร้อย ✓</div>
-          <p style="font-family: var(--dp-sans); margin: 12px 0 0; font-size: 14px; opacity: 0.75; color: var(--cine-ink);">ทีมเราจะติดต่อกลับเพื่อยืนยันคิวภายใน 5 นาที — ขอบคุณที่ไว้วางใจ DermaPride</p>
+          <p style="font-family: var(--dp-sans); margin: 12px 0 0; font-size: 14px; opacity: 0.75; color: var(--cine-ink);">ส่งข้อมูลเรียบร้อย ทางคลินิกจะติดต่อกลับเร็วที่สุด</p>
         </div>
       </form>
 
@@ -719,6 +720,7 @@
           <li><a href="#branches">สาขาราชพฤกษ์</a></li>
           <li><a href="#hours">เวลาเปิดบริการ</a></li>
           <li><a href="tel:0658598599">065-859-8599</a></li>
+          <li><a href="tel:0957898595">095-789-8595</a></li>
         </ul>
       </div>
       <div>
@@ -860,10 +862,52 @@
   const dateInput = form.querySelector('[name=date]');
   dateInput.value = tomorrow.toISOString().slice(0,10);
   dateInput.min = new Date().toISOString().slice(0,10);
-  form.addEventListener('submit', (e) => {
+  const BOOKING_WEBHOOK = 'https://hook.us2.make.com/l4e90m961gtai6xjok8qosossd717sym';
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    form.classList.add('is-sent');
-    form.scrollIntoView({behavior: 'smooth', block: 'center'});
+
+    const activeSlot = document.querySelector('#slots .dpe-slot.is-active');
+    const payload = {
+      name:    form.querySelector('[name=name]').value.trim(),
+      phone:   form.querySelector('[name=phone]').value.trim(),
+      branch:  form.querySelector('[name=branch]').value,
+      service: form.querySelector('[name=service]').value,
+      date:    form.querySelector('[name=date]').value,
+      time:    activeSlot ? activeSlot.textContent.trim() : '',
+      message: form.querySelector('[name=message]').value.trim()
+    };
+
+    console.log('[BOOKING] submit start', payload);
+
+    const btn      = form.querySelector('button[type=submit]');
+    const btnOrig  = btn.innerHTML;
+    btn.disabled   = true;
+    btn.textContent = 'กำลังส่ง…';
+
+    const prevErr = form.querySelector('.dpe-form-err');
+    if (prevErr) prevErr.remove();
+
+    try {
+      const res = await fetch(BOOKING_WEBHOOK, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      console.log('[BOOKING] webhook success');
+      form.classList.add('is-sent');
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      console.error('[BOOKING] webhook failed:', err.message);
+      const el = document.createElement('p');
+      el.className = 'dpe-form-err';
+      el.style.cssText = 'color:#B7402A;font-size:13px;margin-top:12px;font-family:var(--dp-sans);';
+      el.textContent = 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง หรือติดต่อผ่าน Facebook';
+      form.querySelector('.dpe-form-foot').appendChild(el);
+      btn.disabled  = false;
+      btn.innerHTML = btnOrig;
+    }
   });
 
   // ===== CMS-driven dynamic blocks (hours + reviews) =====

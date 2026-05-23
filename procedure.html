@@ -151,7 +151,6 @@
   border-radius: 0 8px 8px 0;
   display: inline-flex; align-items: baseline; gap: 12px;
 }
-.proc-copy .price .lbl { font-family: var(--dp-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.65; }
 .proc-copy .price .val { font-family: var(--dp-display); font-weight: 350; font-size: 26px; letter-spacing: -0.02em; color: var(--dp-teal-800); }
 .proc-copy .tags { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 6px; }
 .proc-copy .tag {
@@ -325,6 +324,7 @@
   </nav>
   <div class="dpe-nav-end">
     <a class="dpe-nav-phone" href="tel:0658598599" id="navPhone">065 859 8599</a>
+    <a class="dpe-nav-phone" href="tel:0957898595">095 789 8595</a>
     <a class="dpe-nav-cta" href="DermaPride Clinics.html#booking">
       Book a Visit
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
@@ -349,6 +349,7 @@
           <li><a href="DermaPride Clinics.html#branches">สาขาวัชรพล</a></li>
           <li><a href="DermaPride Clinics.html#branches">สาขาราชพฤกษ์</a></li>
           <li><a href="tel:0658598599">065-859-8599</a></li>
+          <li><a href="tel:0957898595">095-789-8595</a></li>
         </ul>
       </div>
       <div>
@@ -460,7 +461,7 @@
         ${sec.subtitle ? `<div class="eyebrow">${escapeHTML(sec.subtitle)}</div>` : `<div class="eyebrow">— ${num}</div>`}
         ${sec.title ? `<h2>${parseAccent(sec.title)}</h2>` : ''}
         ${sec.body ? `<div class="body">${escapeHTML(sec.body)}</div>` : ''}
-        ${sec.price ? `<div class="price"><span class="lbl">Highlight</span><span class="val">${escapeHTML(sec.price)}</span></div>` : ''}
+        ${sec.price ? `<div class="price"><span class="val">${escapeHTML(sec.price)}</span></div>` : ''}
         ${sec.tags ? `<div class="tags">${sec.tags.split(',').map(t => `<span class="tag">${escapeHTML(t.trim())}</span>`).join('')}</div>` : ''}
       </div>
     `;

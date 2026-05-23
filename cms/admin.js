@@ -1420,7 +1420,13 @@
       var orig = CMS[fn];
       if (typeof orig !== 'function') return;
       CMS[fn] = function() {
-        if (!_isAuth()) { console.warn('[CMS] Not authenticated — write blocked.'); return; }
+        if (!_isAuth()) {
+          var err = new Error('[CMS] Not authenticated — ' + fn + ' blocked. Session may have expired; please log in again.');
+          console.error(err.message);
+          // Return a rejected Promise so any `await CMS.publish()` caller
+          // reaches its catch block instead of silently succeeding.
+          return Promise.reject(err);
+        }
         return orig.apply(this, arguments);
       };
     });
@@ -1431,7 +1437,11 @@
         var orig = obj[fn];
         if (typeof orig !== 'function') return;
         obj[fn] = function() {
-          if (!_isAuth()) { console.warn('[CMS] Not authenticated — ' + ns + '.' + fn + ' blocked.'); return; }
+          if (!_isAuth()) {
+            var err = new Error('[CMS] Not authenticated — ' + ns + '.' + fn + ' blocked. Session may have expired.');
+            console.error(err.message);
+            return Promise.reject(err);
+          }
           return orig.apply(this, arguments);
         };
       });

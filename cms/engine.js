@@ -33,35 +33,55 @@
 (function () {
   'use strict';
 
+  // ── VERSION STAMP ────────────────────────────────────────────────
+  // Printed on every page load. If you see a different version in the
+  // console, a stale cached build is still being served.
+  const ENGINE_BUILD = 'cms_sections-only / build-2';
+  console.log('[CMS] ENGINE LOADED — build:', ENGINE_BUILD,
+    '| table: cms_sections | cms_data: RETIRED');
+  // ─────────────────────────────────────────────────────────────────
+
   const STORAGE_KEY = 'dp_cms_v1';   // local cache key only
   const VERSION = 1;
 
   // ================================================================
   // SUPABASE CONFIG
-  //
-  // Required SQL (run once in Dashboard → SQL Editor):
-  //
-  //    create table if not exists cms_data (
-  //      id         integer     primary key default 1,
-  //      published  jsonb       not null    default '{}'::jsonb,
-  //      draft      jsonb       not null    default '{}'::jsonb,
-  //      updated_at timestamptz             default now()
-  //    );
-  //    insert into cms_data (id) values (1) on conflict do nothing;
-  //    alter table cms_data enable row level security;
-  //    create policy "public read" on cms_data for select using (true);
-  //    create policy "anon write"  on cms_data for all    using (true);
-  //
-  // Required Storage: Dashboard → Storage → New bucket → cms-media → Public: YES
-  //
-  // SB_KEY: try your publishable key first. If the console shows HTTP 401 on load,
-  // swap it for the "anon public" JWT key (starts with eyJ…) from
-  // Dashboard → Project Settings → API → "anon public".
+  // Storage: Dashboard → Storage → New bucket → cms-media → Public: YES
+  // SB_KEY: use the "anon public" JWT key (starts with eyJ…) from
+  //         Dashboard → Project Settings → API → "anon public".
   // ================================================================
   const SB_URL    = 'https://riojltqsgtjvlzkpmhrb.supabase.co';
   const SB_KEY    = 'sb_publishable_XMnIk0XXsn_ayVJJZ7LSew_vsT5o0kG';
-  const SB_TABLE  = 'cms_data';
   const SB_BUCKET = 'cms-media';
+  // cms_data is GONE — all writes go to cms_sections only.
+
+  // cms_sections table — one row per logical slice so each write is small.
+  //
+  // Run once in Supabase Dashboard → SQL Editor:
+  //
+  //   create table if not exists cms_sections (
+  //     section    text        primary key,
+  //     published  jsonb       not null default '{}'::jsonb,
+  //     draft      jsonb       not null default '{}'::jsonb,
+  //     updated_at timestamptz default now()
+  //   );
+  //   insert into cms_sections (section)
+  //     values ('home'),('procedures'),('reviews'),('media'),('settings')
+  //   on conflict do nothing;
+  //   alter table cms_sections enable row level security;
+  //   create policy "public read" on cms_sections for select using (true);
+  //   create policy "anon write"  on cms_sections for all    using (true);
+  //
+  const SB_SEC_TABLE = 'cms_sections';
+
+  // Which top-level state keys belong to each section
+  const _SEC_KEYS = {
+    home:       ['home', 'theme'],
+    procedures: ['procedures'],
+    reviews:    ['reviews'],
+    media:      ['media'],
+    settings:   ['seo', 'version', 'updatedAt', 'publishedAt']
+  };
 
   function _sbHeaders(extra) {
     return Object.assign({
@@ -72,38 +92,138 @@
   }
 
   async function _sbRequest(method, path, body, extraHeaders) {
+    // Hard guard — cms_data is retired. Any call to it is a bug, block immediately.
+    if (path.indexOf('cms_data') !== -1) {
+      var blocked = '[CMS] BLOCKED: attempt to access deprecated cms_data table. Path: ' + path;
+      console.error(blocked);
+      throw new Error(blocked);
+    }
+
     var url  = SB_URL + path;
     var opts = { method: method, headers: _sbHeaders(extraHeaders) };
     if (body !== undefined) opts.body = (typeof body === 'string') ? body : JSON.stringify(body);
-    console.log('[CMS] →', method, url.replace(SB_URL, ''));
-    var res = await fetch(url, opts);
-    var text = await res.text();
-    console.log('[CMS] ←', res.status, res.statusText, text.slice(0, 200) || '(empty)');
-    if (!res.ok) throw new Error('[CMS] HTTP ' + res.status + ' on ' + method + ' ' + path + ': ' + text);
+    var payloadKb = body !== undefined ? (opts.body.length / 1024).toFixed(1) + ' KB' : 'no body';
+    console.log('➡️ SENDING REQUEST', method, path, '(' + payloadKb + ')');
+
+    var res;
+    try {
+      res = await fetch(url, opts);
+    } catch (netErr) {
+      var netMsg = '[CMS] Network error on ' + method + ' ' + path + ': ' + netErr.message;
+      console.error(netMsg);
+      throw new Error(netMsg);
+    }
+
+    var text;
+    try {
+      text = await res.text();
+    } catch (bodyErr) {
+      var bodyMsg = '[CMS] Response body read failed on ' + method + ' ' + path + ': ' + bodyErr.message;
+      console.error(bodyMsg);
+      throw new Error(bodyMsg);
+    }
+
+    console.log('⬅️ RESPONSE', res.status, res.statusText, text.slice(0, 300) || '(empty)');
+    if (!res.ok) {
+      var httpMsg = '[CMS] HTTP ' + res.status + ' on ' + method + ' ' + path + ': ' + text;
+      console.error(httpMsg);
+      throw new Error(httpMsg);
+    }
     return text ? JSON.parse(text) : null;
   }
 
+  // Retries up to 3 times with linear back-off (1 s → 2 s).
+  async function _sbRequestWithRetry(method, path, body, extraHeaders) {
+    var MAX = 3, lastErr;
+    for (var attempt = 1; attempt <= MAX; attempt++) {
+      try {
+        return await _sbRequest(method, path, body, extraHeaders);
+      } catch (e) {
+        lastErr = e;
+        console.error('[CMS] attempt ' + attempt + '/' + MAX + ' FAILED:', e.message);
+        if (attempt < MAX) {
+          var delay = attempt * 1000;
+          console.warn('[CMS] retrying in ' + delay + 'ms …');
+          await new Promise(function(r) { setTimeout(r, delay); });
+        }
+      }
+    }
+    console.error('[CMS] ALL ' + MAX + ' attempts failed — giving up:', lastErr && lastErr.message);
+    throw lastErr;
+  }
+
   // ----- Supabase DB helpers -----
+
+  // Fetch all section rows and reassemble the full CMS state.
   async function _loadSupabase() {
-    console.log('[CMS] _loadSupabase …');
-    var rows = await _sbRequest('GET', '/rest/v1/' + SB_TABLE + '?select=published%2Cdraft&id=eq.1&limit=1');
-    if (!Array.isArray(rows) || rows.length === 0) { console.log('[CMS] no row yet'); return null; }
-    console.log('[CMS] row found, updatedAt:', rows[0].published && rows[0].published.updatedAt || '—');
+    console.log('[CMS] _loadSupabase: fetching sections …');
+    var rows = await _sbRequest(
+      'GET',
+      '/rest/v1/' + SB_SEC_TABLE + '?select=section%2Cpublished%2Cdraft&limit=20'
+    );
+    if (!Array.isArray(rows) || rows.length === 0) { console.log('[CMS] no sections yet'); return null; }
+    var pub = {}, dft = {};
+    rows.forEach(function(row) {
+      Object.assign(pub, row.published || {});
+      Object.assign(dft, row.draft     || {});
+    });
+    console.log('[CMS] loaded', rows.length, 'section(s)');
     return {
-      published: deepMerge(deepClone(DEFAULTS), rows[0].published || {}),
-      draft:     deepMerge(deepClone(DEFAULTS), rows[0].draft || rows[0].published || {})
+      published: deepMerge(deepClone(DEFAULTS), pub),
+      draft:     deepMerge(deepClone(DEFAULTS), dft)
     };
   }
 
-  async function _saveSupabase(pub, dft) {
-    console.log('[CMS] _saveSupabase: upserting …');
-    await _sbRequest(
+  // Upsert a single section row — small payload, no timeout risk.
+  async function _saveSection(sectionId, pubSlice, dftSlice) {
+    var payload = { section: sectionId, published: pubSlice, draft: dftSlice, updated_at: new Date().toISOString() };
+    var kb = (JSON.stringify(payload).length / 1024).toFixed(1);
+    console.log('[CMS] saving section:', sectionId, '(' + kb + ' KB)');
+    await _sbRequestWithRetry(
       'POST',
-      '/rest/v1/' + SB_TABLE,
-      { id: 1, published: pub, draft: dft, updated_at: new Date().toISOString() },
+      '/rest/v1/' + SB_SEC_TABLE,
+      payload,
       { 'Prefer': 'resolution=merge-duplicates,return=minimal' }
     );
-    console.log('[CMS] _saveSupabase: OK ✓');
+    console.log('[CMS] section saved OK:', sectionId);
+  }
+
+  // Removes base64 data-URL image items from a media section slice before DB write.
+  // Base64 blobs make the payload multi-MB and cause HTTP 500 statement timeouts.
+  function _stripBase64FromMedia(slice) {
+    if (!slice || !slice.media || !Array.isArray(slice.media.items)) return slice;
+    var before = slice.media.items.length;
+    var items  = slice.media.items.filter(function(it) {
+      return it && it.src && !String(it.src).startsWith('data:');
+    });
+    if (items.length < before) {
+      console.warn('[CMS] ⚠️ Stripped ' + (before - items.length) + ' base64 image(s) from publish payload. '
+        + 'These images are stored locally only and will NOT appear cross-device. '
+        + 'Re-upload via Media Library after confirming Supabase Storage is configured.');
+    }
+    return Object.assign({}, slice, { media: Object.assign({}, slice.media, { items: items }) });
+  }
+
+  // Split state into sections and save each sequentially.
+  async function _saveSupabase(pub, dft) {
+    console.log('[CMS] PUBLISH START — TABLE = cms_sections ONLY');
+    var ids = Object.keys(_SEC_KEYS);
+    for (var i = 0; i < ids.length; i++) {
+      var id   = ids[i];
+      var keys = _SEC_KEYS[id];
+      var ps   = {}, ds = {};
+      keys.forEach(function(k) {
+        if (pub[k] !== undefined) ps[k] = pub[k];
+        if (dft[k] !== undefined) ds[k] = dft[k];
+      });
+      // Guard: strip base64 from media section — payload size is the #1 cause of HTTP 500
+      if (id === 'media') {
+        ps = _stripBase64FromMedia(ps);
+        ds = _stripBase64FromMedia(ds);
+      }
+      await _saveSection(id, ps, ds);
+    }
+    console.log('[CMS] _saveSupabase: all sections saved ✓');
   }
 
   // ----- Default content (the "factory reset" baseline) -----
@@ -178,7 +298,7 @@
           name: 'DermaPride · ราชพฤกษ์',
           address: 'อมอร์ วิลเลจ ราชพฤกษ์ นนทบุรี',
           license: '10101033360',
-          phone: '065-859-8599',
+          phone: '095-789-8595',
           image1: 'assets/clinic-ratchapruk-1.jpg',
           image2: 'assets/clinic-ratchapruk-2.jpg',
           image3: 'assets/clinic-ratchapruk-3.jpg',
@@ -308,14 +428,11 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ published: pub, draft: dft })); } catch (e) {}
   }
 
-  // Draft auto-save — write to cache immediately, push to Supabase async.
-  // Used by set/sections/reviews/etc. Fire-and-forget is acceptable here
-  // because publish() does an explicit awaited write before confirming success.
+  // Draft auto-save — local cache only.
+  // Supabase is written exclusively by CMS.publish() using section-based upserts,
+  // so frequent edits (every keystroke / section add) never hit the database.
   function saveToStorage() {
     _saveCache(published, draft);
-    _saveSupabase(published, draft).catch(e => {
-      console.error('[CMS] Draft sync to Supabase failed:', e.message);
-    });
   }
 
   function deepClone(v) { return JSON.parse(JSON.stringify(v)); }
@@ -373,15 +490,16 @@
     },
 
     async publish() {
-      console.log('[CMS] publish() ENTER');
+      console.log('[CMS] PUBLISH CLICKED — entering publish()');
       published = deepClone(draft);
       published.publishedAt = Date.now();
       _saveCache(published, draft);
       notify();
       this.hydrateAll();
-      console.log('[CMS] publish() → calling _saveSupabase …');
+      console.log('[CMS] ABOUT TO SEND REQUEST — sections:', Object.keys(_SEC_KEYS).join(', '));
+      console.log('[CMS] SENDING TO SUPABASE …');
       await _saveSupabase(published, draft);
-      console.log('[CMS] publish() → DONE ✓');
+      console.log('[CMS] publish() → ALL DONE ✓');
     },
 
     discardDraft() {
@@ -455,35 +573,58 @@
     media: {
       list() { return CMS._renderSource().media.items.slice(); },
       async add(file) {
-        const ext  = (file.name.split('.').pop() || 'bin').toLowerCase();
-        const path = uid('img_') + '.' + ext;
-        console.log('[CMS] media.add: uploading to Storage …', path);
-        var res = await fetch(SB_URL + '/storage/v1/object/' + SB_BUCKET + '/' + path, {
-          method:  'POST',
-          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY,
-                     'Content-Type': file.type, 'x-upsert': 'true' },
-          body: file
-        });
-        if (!res.ok) {
-          var txt = await res.text();
-          console.error('[CMS] Storage upload failed', res.status, txt);
-          // fallback to data-URL so the admin can still work locally
-          var src = await new Promise((rv, rj) => {
-            var r = new FileReader(); r.onload = () => rv(r.result); r.onerror = rj;
-            r.readAsDataURL(file);
+        const ext         = (file.name.split('.').pop() || 'bin').toLowerCase();
+        const path        = uid('img_') + '.' + ext;
+        const contentType = file.type || 'application/octet-stream';
+        console.log('[MEDIA] upload start:', file.name,
+          '(' + (file.size / 1024).toFixed(1) + ' KB)', '→', SB_BUCKET + '/' + path);
+
+        var res;
+        try {
+          res = await fetch(SB_URL + '/storage/v1/object/' + SB_BUCKET + '/' + path, {
+            method:  'POST',
+            headers: {
+              'apikey':        SB_KEY,
+              'Authorization': 'Bearer ' + SB_KEY,
+              'Content-Type':  contentType,
+              'x-upsert':      'true'
+            },
+            body: file
           });
-          console.warn('[CMS] Falling back to data-URL (cross-device images will not work)');
-          var item2 = { id: uid('m_'), name: file.name, type: file.type, size: file.size, src, uploadedAt: Date.now() };
-          var items2 = draft.media.items.slice(); items2.unshift(item2);
-          draft.media.items = items2; draft.updatedAt = Date.now();
-          saveToStorage(); notify(); return item2;
+        } catch (netErr) {
+          var netMsg = '[MEDIA] upload FAILED — network error: ' + netErr.message;
+          console.error(netMsg);
+          throw new Error(netMsg);
         }
-        var src = SB_URL + '/storage/v1/object/public/' + SB_BUCKET + '/' + path;
-        console.log('[CMS] media.add OK →', src);
-        const item = { id: uid('m_'), name: file.name, type: file.type, size: file.size, src, uploadedAt: Date.now() };
-        const items = draft.media.items.slice(); items.unshift(item);
-        draft.media.items = items; draft.updatedAt = Date.now();
-        saveToStorage(); notify(); return item;
+
+        if (!res.ok) {
+          var txt = await res.text().catch(function() { return '(unreadable)'; });
+          console.error('[MEDIA] upload FAILED — HTTP', res.status, txt);
+          if (res.status === 400 || res.status === 401 || res.status === 403) {
+            console.error(
+              '[MEDIA] Likely cause: cms-media bucket has no anon INSERT policy.\n' +
+              'Run in Supabase SQL Editor:\n' +
+              "  insert into storage.buckets (id, name, public) values ('cms-media', 'cms-media', true)\n" +
+              '  on conflict (id) do update set public = true;\n' +
+              "  create policy \"anon storage upload\"  on storage.objects for insert to anon with check (bucket_id = 'cms-media');\n" +
+              "  create policy \"anon storage select\"  on storage.objects for select to anon using (bucket_id = 'cms-media');\n" +
+              "  create policy \"anon storage delete\"  on storage.objects for delete to anon using (bucket_id = 'cms-media');"
+            );
+          }
+          throw new Error('[MEDIA] upload FAILED HTTP ' + res.status + ': ' + txt);
+        }
+
+        const src  = SB_URL + '/storage/v1/object/public/' + SB_BUCKET + '/' + path;
+        console.log('[MEDIA] upload success →', src);
+
+        const item  = { id: uid('m_'), name: file.name, type: contentType, size: file.size, src, uploadedAt: Date.now() };
+        const items = draft.media.items.slice();
+        items.unshift(item);
+        draft.media.items = items;
+        draft.updatedAt   = Date.now();
+        saveToStorage();
+        notify();
+        return item;
       },
       remove(id) {
         const item = draft.media.items.find(m => m.id === id);
@@ -699,6 +840,7 @@
   // Phase 2 (async):         fetch from Supabase, re-render with authoritative data.
   async function _initRemote() {
     try {
+      console.log('[CMS] _initRemote: TARGET = cms_sections ONLY (cms_data is retired)');
       console.log('[CMS] _initRemote: connecting to Supabase …');
       const remote = await _loadSupabase();
       if (remote) {
