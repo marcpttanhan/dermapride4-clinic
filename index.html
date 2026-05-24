@@ -1092,7 +1092,64 @@
     if (autoplay) _artTimer = setInterval(() => goTo(cur + 1), 4500);
   }
 
-  function renderCMSBlocks() { renderHeroFromCMS(); renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); renderDoctorGalleryFromCMS(); }
+  function renderResultsFromCMS() {
+    if (!window.CMS) return;
+    const host = document.getElementById('resThumbs');
+    const mainImg = document.getElementById('resImg');
+    if (!host || !mainImg) return;
+    const items = (CMS.get('home.results.items') || []).filter(it => it.visible !== false);
+    if (!items.length) return;
+
+    host.innerHTML = items.map((it, idx) => {
+      const src   = escapeRev(it.image || '');
+      const title = escapeRev(it.title || '');
+      const sum   = escapeRev(it.summary || '');
+      const tr    = escapeRev(it.treatment || '');
+      const am    = escapeRev(it.amount || '');
+      const rt    = escapeRev(it.resultTime || '');
+      return `<button class="dpe-results-thumb${idx === 0 ? ' is-active' : ''}"
+        data-src="${src}" data-title="${title}" data-summary="${sum}"
+        data-treat="${tr}" data-amount="${am}" data-result="${rt}">
+        ${src ? `<img src="${src}" alt="" />` : ''}
+      </button>`;
+    }).join('');
+
+    const first = items[0];
+    mainImg.src = first.image || '';
+    const titleEl  = document.getElementById('resTitle');
+    const sumEl    = document.getElementById('resSummary');
+    const treatEl  = document.getElementById('resTreat');
+    const amountEl = document.getElementById('resAmount');
+    const resultEl = document.getElementById('resResult');
+    const caseEl   = document.getElementById('resCase');
+    if (titleEl)  titleEl.textContent  = first.title || '';
+    if (sumEl)    sumEl.textContent    = first.summary || '';
+    if (treatEl)  treatEl.textContent  = first.treatment || '';
+    if (amountEl) amountEl.textContent = first.amount || '';
+    if (resultEl) resultEl.textContent = first.resultTime || '';
+    if (caseEl)   caseEl.textContent   = 'CASE · 0001';
+
+    const newThumbs = host.querySelectorAll('.dpe-results-thumb');
+    newThumbs.forEach((t, idx) => {
+      t.addEventListener('click', () => {
+        newThumbs.forEach(o => o.classList.remove('is-active'));
+        t.classList.add('is-active');
+        mainImg.style.opacity = '0';
+        setTimeout(() => {
+          mainImg.src = t.dataset.src;
+          if (titleEl)  titleEl.textContent  = t.dataset.title;
+          if (sumEl)    sumEl.textContent    = t.dataset.summary;
+          if (treatEl)  treatEl.textContent  = t.dataset.treat;
+          if (amountEl) amountEl.textContent = t.dataset.amount;
+          if (resultEl) resultEl.textContent = t.dataset.result;
+          if (caseEl)   caseEl.textContent   = `CASE · ${String(idx + 1).padStart(4, '0')}`;
+          mainImg.style.opacity = '1';
+        }, 200);
+      });
+    });
+  }
+
+  function renderCMSBlocks() { renderHeroFromCMS(); renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); renderDoctorGalleryFromCMS(); renderResultsFromCMS(); }
 
   // Treatments / Procedure category grid — pulled from CMS
   function renderTreatmentsFromCMS() {
