@@ -42,7 +42,32 @@
   // ─────────────────────────────────────────────────────────────────
 
   const STORAGE_KEY = 'dp_cms_v1';   // local cache key only
-  const VERSION = 1;
+  const VERSION = 2;
+
+  // Data migrations — keyed by version number they upgrade TO.
+  // Each migration receives the full pub and dft objects (already deepMerged with DEFAULTS)
+  // and mutates them in place. Runs once after Supabase load when pub.version < TARGET_VERSION.
+  const DATA_MIGRATIONS = {
+    2: function(pub, dft) {
+      // Correct stale hero l2 text ('ความซื่อตรง' / 'จากความซื่อตรง') to current copy.
+      var correct = 'ด้วยความซื่อตรง';
+      if (pub.home && pub.home.hero && pub.home.hero.l2 !== correct) pub.home.hero.l2 = correct;
+      if (dft.home && dft.home.hero && dft.home.hero.l2 !== correct) dft.home.hero.l2 = correct;
+    }
+  };
+
+  function _runMigrations(pub, dft) {
+    var from = (pub.version || 1);
+    var changed = false;
+    Object.keys(DATA_MIGRATIONS).forEach(function(v) {
+      if (from < Number(v)) {
+        DATA_MIGRATIONS[v](pub, dft);
+        changed = true;
+      }
+    });
+    if (changed) { pub.version = VERSION; dft.version = VERSION; }
+    return changed;
+  }
 
   // ================================================================
   // SUPABASE CONFIG
@@ -252,7 +277,7 @@
       hero: {
         kicker: 'Reel 01 · A Pride of Skin',
         l1: 'เสน่ห์ที่สร้าง',
-        l2: 'ความซื่อตรง',
+        l2: 'ด้วยความซื่อตรง',
         l3: 'และหลักการแห่งสุนทรีศิลป์',
         l4: '',
         side: 'โดยแพทย์ผู้ออกแบบ สร้างเสน่ห์อันเป็นเอกลักษณ์บนใบหน้าคุณด้วยความซื่อตรง',
@@ -862,6 +887,12 @@
       if (remote) {
         published = remote.published;
         draft     = remote.draft;
+        const migrated = _runMigrations(published, draft);
+        if (migrated) {
+          console.log('[CMS] Data migration applied — saving to Supabase …');
+          await _saveSupabase(published, draft);
+          console.log('[CMS] Migration saved ✓');
+        }
         _saveCache(published, draft);
         notify();
         CMS.hydrate(document);
