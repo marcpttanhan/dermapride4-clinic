@@ -41,6 +41,7 @@
     { id: 'results',    label: 'Real Results',      icon: I.image },
     { id: 'offers',     label: 'Curated Offerings', icon: I.star },
     { id: 'faq',        label: 'FAQ',               icon: I.search },
+    { id: 'videos',     label: 'Video Testimonials', icon: I.image },
     { id: 'reviews',    label: 'Reviews',           icon: I.star },
     { id: 'branches',   label: 'Branches',          icon: I.pin },
     { id: 'hours',      label: 'Opening Hours',     icon: I.clock },
@@ -158,7 +159,8 @@
     const map = { home: pHome, doctor: pDoctor, procedures: pProcedures,
                   reviews: pReviews, branches: pBranches, hours: pHours,
                   media: pMedia, theme: pTheme, seo: pSEO, backup: pBackup,
-                  philosophy: pPhilosophy, results: pResults, offers: pOffers, faq: pFAQ };
+                  philosophy: pPhilosophy, results: pResults, offers: pOffers, faq: pFAQ,
+                  videos: pVideos };
     (map[activeTab] || pHome)(body);
   }
 
@@ -464,6 +466,71 @@
       fld.querySelector('[data-act="library"]')?.addEventListener('click', () => openMediaPicker(setImg));
       fld.querySelector('[data-act="clear"]')?.addEventListener('click', () => setImg(''));
       bindItemActions(card, 'home.results.items', it);
+    });
+  }
+
+  // ---------- VIDEO TESTIMONIALS ----------
+  function pVideos(body) {
+    const pane = document.createElement('div');
+    pane.className = 'cms-pane';
+    const count = (CMS.getDraft('home.voices.videos') || []).length;
+    pane.innerHTML = `
+      <h2>Video <em>Testimonials</em></h2>
+      <p class="lead">สไลด์เดอร์วิดีโอรีวิวจากลูกค้า — รองรับ YouTube, Facebook, TikTok</p>
+      ${chk('แสดงส่วนนี้บนหน้าเว็บ', 'home.voices.visible')}
+      <div style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 10px;">
+        <h3 style="margin:0;">วิดีโอ ${count} รายการ</h3>
+        <button class="cms-btn cms-btn--primary cms-btn--sm" id="addVid">${I.plus} เพิ่มวิดีโอ</button>
+      </div>
+      <div id="vidList"></div>
+    `;
+    body.appendChild(pane);
+    bind(pane);
+    pane.querySelector('#addVid').addEventListener('click', () => {
+      collAdd('home.voices.videos', { title: '', name: '', videoUrl: '', platform: 'auto', description: '', visible: true });
+      renderTab();
+    });
+    const host = pane.querySelector('#vidList');
+    const items = CMS.getDraft('home.voices.videos') || [];
+    if (!items.length) {
+      host.innerHTML = '<div class="cms-empty"><h4>ยังไม่มี <em>วิดีโอ</em></h4><p>กด + เพิ่มวิดีโอ แล้ววางลิงก์ YouTube, Facebook หรือ TikTok</p></div>';
+      return;
+    }
+    items.forEach((it, idx) => {
+      const card = document.createElement('div');
+      card.className = 'cms-card cms-itm' + (it.visible === false ? ' is-hidden' : '');
+      card.innerHTML = `
+        <div class="cms-itm-grid">
+          <div style="flex:1; min-width:0;">
+            <div class="cms-row">
+              <div class="cms-field" style="flex:2;">
+                <label>Video URL (YouTube / Facebook / TikTok)</label>
+                <input type="url" data-fld="videoUrl" value="${esc(it.videoUrl||'')}" placeholder="https://..." />
+              </div>
+              <div class="cms-field" style="flex:0 0 140px;">
+                <label>Platform</label>
+                <select data-fld="platform">
+                  <option value="auto"     ${(!it.platform||it.platform==='auto')    ?'selected':''}>Auto-detect</option>
+                  <option value="youtube"  ${it.platform==='youtube'                 ?'selected':''}>YouTube</option>
+                  <option value="facebook" ${it.platform==='facebook'                ?'selected':''}>Facebook</option>
+                  <option value="tiktok"   ${it.platform==='tiktok'                  ?'selected':''}>TikTok</option>
+                </select>
+              </div>
+            </div>
+            <div class="cms-row">
+              <div class="cms-field"><label>ชื่อวิดีโอ / หัวเรื่อง</label><input type="text" data-fld="title" value="${esc(it.title||'')}" /></div>
+              <div class="cms-field"><label>ชื่อลูกค้า</label><input type="text" data-fld="name" value="${esc(it.name||'')}" /></div>
+            </div>
+            <div class="cms-field"><label>คำอธิบาย (optional)</label><input type="text" data-fld="description" value="${esc(it.description||'')}" /></div>
+          </div>
+          <div>${itemActions('home.voices.videos', it, idx, items.length)}</div>
+        </div>
+      `;
+      host.appendChild(card);
+      card.querySelectorAll('[data-fld]').forEach(inp => {
+        inp.addEventListener('input', () => collUpdate('home.voices.videos', it.id, { [inp.dataset.fld]: inp.value }));
+      });
+      bindItemActions(card, 'home.voices.videos', it);
     });
   }
 

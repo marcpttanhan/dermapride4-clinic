@@ -1719,6 +1719,136 @@
 }
 
 /* ============================================================
+   VIDEO VOICES SLIDER — Chapter 09B
+============================================================ */
+
+.dp-vslider-section {
+  background: var(--cine-paper);
+  padding: clamp(72px, 9vw, 128px) 0;
+}
+
+.dp-vslider-head { text-align: center; margin-bottom: 52px; }
+
+.dp-vslider-stage { position: relative; }
+
+.dp-vslider {
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.dp-vslider-track {
+  display: flex;
+  gap: 20px;
+  will-change: transform;
+  transition: transform 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: grab;
+}
+.dp-vslider-track:active { cursor: grabbing; }
+
+.dp-vslider-slide {
+  flex: 0 0 68%;
+  min-width: 0;
+  user-select: none;
+  transition: opacity 340ms ease, transform 340ms ease;
+  opacity: 0.42;
+  transform: scale(0.93);
+}
+.dp-vslider-slide.is-active { opacity: 1; transform: scale(1); }
+
+.dp-vslider-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--cine-ink);
+  box-shadow: 0 24px 64px -24px rgba(20, 36, 42, 0.30);
+}
+.dp-vslider-frame iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: 0;
+}
+
+.dp-vslider-placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  background: linear-gradient(150deg, rgba(20,36,42,0.68) 0%, rgba(20,36,42,0.84) 100%);
+  transition: background 220ms ease;
+}
+.dp-vslider-placeholder:hover {
+  background: linear-gradient(150deg, rgba(20,36,42,0.55) 0%, rgba(20,36,42,0.72) 100%);
+}
+
+.dp-vslider-play-btn {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 200ms ease, background 200ms ease;
+  pointer-events: none;
+}
+.dp-vslider-play-btn svg { fill: var(--cine-ink); margin-left: 4px; }
+.dp-vslider-placeholder:hover .dp-vslider-play-btn { transform: scale(1.1); background: #fff; }
+
+.dp-vslider-meta { padding: 16px 4px 0; text-align: center; }
+.dp-vslider-title {
+  font-family: var(--dp-sans); font-weight: 600; font-size: 15px;
+  color: var(--cine-ink); line-height: 1.4;
+}
+.dp-vslider-name {
+  font-family: var(--dp-mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--cine-ink); opacity: 0.5; margin-top: 5px;
+}
+
+.dp-vslider-arrow {
+  position: absolute;
+  top: 40%; transform: translateY(-50%);
+  z-index: 10;
+  width: 44px; height: 44px;
+  border: 1px solid var(--cine-rule);
+  border-radius: 50%;
+  background: rgba(250, 247, 242, 0.9);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 220ms var(--dp-ease);
+  color: var(--cine-ink);
+}
+.dp-vslider-arrow:hover {
+  background: #fff;
+  border-color: rgba(20, 36, 42, 0.25);
+  box-shadow: 0 6px 20px -6px rgba(20, 36, 42, 0.18);
+}
+.dp-vslider-arrow:disabled { opacity: 0.22; cursor: default; box-shadow: none; }
+.dp-vslider-arrow--prev { left: 8px; }
+.dp-vslider-arrow--next { right: 8px; }
+.dp-vslider-arrow svg { stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.dp-vslider-dots {
+  display: flex; justify-content: center; gap: 8px;
+  margin-top: 28px;
+}
+.dp-vslider-dot {
+  width: 6px; height: 6px; padding: 0; border: 0;
+  border-radius: 3px;
+  background: rgba(20, 36, 42, 0.18);
+  cursor: pointer;
+  transition: all 280ms ease;
+}
+.dp-vslider-dot.is-active { width: 22px; background: var(--cine-ink); }
+
+@media (max-width: 900px) {
+  .dp-vslider-slide { flex: 0 0 80%; }
+}
+@media (max-width: 600px) {
+  .dp-vslider-slide { flex: 0 0 90%; }
+  .dp-vslider-arrow { display: none; }
+  .dp-vslider-head { text-align: left; }
+}
+
+/* ============================================================
    Reveal animations - editorial
 ============================================================ */
 

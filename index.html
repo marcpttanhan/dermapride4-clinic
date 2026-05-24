@@ -395,6 +395,33 @@
 </section>
 
 <!-- ============================================================
+     09B · VIDEO VOICES — Video Testimonial Slider
+============================================================ -->
+<section class="dp-vslider-section dpe-chapter" id="voicesVideos" data-screen-label="09B Video Voices" style="display:none">
+  <div class="dpe-shell">
+    <header class="dp-vslider-head" data-veil>
+      <div class="dpe-ch-num">Chapter 09 · Video Voices</div>
+      <h2 class="dpe-h-display dpe-thai-h" style="margin-top: 16px;">วิดีโอ<br><em>รีวิวจากลูกค้า.</em></h2>
+    </header>
+
+    <div class="dp-vslider-stage" data-veil data-veil-delay="1">
+      <div class="dp-vslider" id="vsSlider">
+        <div class="dp-vslider-track" id="vsTrack">
+          <!-- injected by renderVoicesFromCMS() -->
+        </div>
+      </div>
+      <button class="dp-vslider-arrow dp-vslider-arrow--prev" id="vsPrev" aria-label="Previous" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="dp-vslider-arrow dp-vslider-arrow--next" id="vsNext" aria-label="Next" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="dp-vslider-dots" id="vsDots"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      10 · OFFERINGS / PROMOTIONS — editorial list
 ============================================================ -->
 <section class="dpe-offers dpe-chapter" id="offers" data-screen-label="10 Offers">
@@ -1149,7 +1176,174 @@
     });
   }
 
-  function renderCMSBlocks() { renderHeroFromCMS(); renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); renderDoctorGalleryFromCMS(); renderResultsFromCMS(); }
+  // ── Video Voices Slider ─────────────────────────────────────────
+  var _vsAbort = null;
+
+  function renderVoicesFromCMS() {
+    if (!window.CMS) return;
+    var sec = document.getElementById('voicesVideos');
+    if (!sec) return;
+    var items = (CMS.get('home.voices.videos') || []).filter(function(it) {
+      return it.visible !== false && it.videoUrl;
+    });
+    if (!items.length || CMS.get('home.voices.visible') === false) {
+      sec.style.display = 'none'; return;
+    }
+    sec.style.display = '';
+    var track  = document.getElementById('vsTrack');
+    var dotsEl = document.getElementById('vsDots');
+    if (!track) return;
+
+    var PLAY_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M5 3l14 9-14 9V3z"/></svg>';
+    track.innerHTML = items.map(function(it, i) {
+      return '<div class="dp-vslider-slide' + (i === 0 ? ' is-active' : '') + '">'
+        + '<div class="dp-vslider-frame">'
+        +   '<div class="dp-vslider-placeholder" role="button" tabindex="0" aria-label="เล่นวิดีโอ">'
+        +     '<div class="dp-vslider-play-btn">' + PLAY_ICON + '</div>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="dp-vslider-meta">'
+        + (it.title ? '<div class="dp-vslider-title">' + escapeRev(it.title) + '</div>' : '')
+        + (it.name  ? '<div class="dp-vslider-name">'  + escapeRev(it.name)  + '</div>' : '')
+        + '</div></div>';
+    }).join('');
+
+    if (dotsEl) {
+      dotsEl.innerHTML = items.length > 1 ? items.map(function(_, i) {
+        return '<button class="dp-vslider-dot' + (i === 0 ? ' is-active' : '') + '" aria-label="วิดีโอ ' + (i + 1) + '"></button>';
+      }).join('') : '';
+    }
+    _initVoicesSlider(items);
+  }
+
+  function _initVoicesSlider(items) {
+    var slider  = document.getElementById('vsSlider');
+    var track   = document.getElementById('vsTrack');
+    var prevBtn = document.getElementById('vsPrev');
+    var nextBtn = document.getElementById('vsNext');
+    var dotsEl  = document.getElementById('vsDots');
+    if (!slider || !track) return;
+
+    if (_vsAbort) _vsAbort.abort();
+    _vsAbort = new AbortController();
+    var abortSig = _vsAbort.signal;
+
+    var cur = 0;
+    var PLAY_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M5 3l14 9-14 9V3z"/></svg>';
+
+    function parseEmbed(url) {
+      var m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+      if (m) return 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0&modestbranding=1';
+      m = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+      if (m) return 'https://www.tiktok.com/embed/v2/' + m[1];
+      if (url.indexOf('facebook.com') !== -1)
+        return 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(url) + '&show_text=false&width=640&allowfullscreen=true';
+      return url;
+    }
+
+    function allSlides() { return Array.prototype.slice.call(track.querySelectorAll('.dp-vslider-slide')); }
+
+    function recompute() {
+      var ss  = allSlides();
+      if (!ss.length) return;
+      var sw  = ss[0].offsetWidth;
+      var gap = 20;
+      var tx  = (slider.offsetWidth - sw) / 2 - cur * (sw + gap);
+      track.style.transform = 'translateX(' + tx + 'px)';
+      ss.forEach(function(s, i) { s.classList.toggle('is-active', i === cur); });
+      if (dotsEl) Array.prototype.forEach.call(dotsEl.querySelectorAll('.dp-vslider-dot'),
+        function(d, i) { d.classList.toggle('is-active', i === cur); });
+      if (prevBtn) prevBtn.disabled = cur === 0;
+      if (nextBtn) nextBtn.disabled = cur === items.length - 1;
+    }
+
+    function mountIframe(slideEl, idx) {
+      var frame = slideEl.querySelector('.dp-vslider-frame');
+      if (frame.querySelector('iframe')) return;
+      var it = items[idx];
+      if (!it || !it.videoUrl) return;
+      var ifrm = document.createElement('iframe');
+      ifrm.src = parseEmbed(it.videoUrl);
+      ifrm.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
+      ifrm.allowFullscreen = true;
+      ifrm.loading = 'lazy';
+      ifrm.title = escapeRev(it.title || 'Video');
+      frame.innerHTML = '';
+      frame.appendChild(ifrm);
+    }
+
+    function unmountIframe(slideEl) {
+      var frame = slideEl && slideEl.querySelector('.dp-vslider-frame');
+      if (!frame || !frame.querySelector('iframe')) return;
+      frame.innerHTML = '<div class="dp-vslider-placeholder" role="button" tabindex="0" aria-label="เล่นวิดีโอ"><div class="dp-vslider-play-btn">' + PLAY_ICON + '</div></div>';
+    }
+
+    var goTimer = null;
+    function goTo(idx) {
+      if (idx === cur || idx < 0 || idx >= items.length) return;
+      clearTimeout(goTimer);
+      goTimer = setTimeout(function() {
+        var ss = allSlides();
+        unmountIframe(ss[cur]);
+        cur = idx;
+        recompute();
+        mountIframe(ss[cur], cur);
+      }, 30);
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function() { goTo(cur - 1); }, { signal: abortSig });
+    if (nextBtn) nextBtn.addEventListener('click', function() { goTo(cur + 1); }, { signal: abortSig });
+
+    if (dotsEl) dotsEl.addEventListener('click', function(e) {
+      var dot = e.target.closest('.dp-vslider-dot');
+      if (!dot) return;
+      goTo(Array.prototype.indexOf.call(dotsEl.querySelectorAll('.dp-vslider-dot'), dot));
+    }, { signal: abortSig });
+
+    track.addEventListener('click', function(e) {
+      if (e.target.closest('iframe')) return;
+      var slide = e.target.closest('.dp-vslider-slide');
+      if (!slide) return;
+      var idx = allSlides().indexOf(slide);
+      if (idx === cur) mountIframe(slide, idx);
+      else goTo(idx);
+    }, { signal: abortSig });
+
+    var dragX = 0, dragging = false;
+    track.addEventListener('pointerdown', function(e) {
+      if (e.button && e.pointerType === 'mouse') return;
+      dragX = e.clientX; dragging = true;
+      track.style.transition = 'none';
+      try { track.setPointerCapture(e.pointerId); } catch(_) {}
+    }, { signal: abortSig });
+    track.addEventListener('pointermove', function(e) {
+      if (!dragging) return;
+      if (Math.abs(e.clientX - dragX) > 8) e.preventDefault();
+    }, { signal: abortSig, passive: false });
+    track.addEventListener('pointerup', function(e) {
+      if (!dragging) return;
+      dragging = false; track.style.transition = '';
+      var d = e.clientX - dragX;
+      if (d < -50) goTo(cur + 1);
+      else if (d > 50) goTo(cur - 1);
+      else recompute();
+    }, { signal: abortSig });
+    track.addEventListener('pointercancel', function() {
+      dragging = false; track.style.transition = ''; recompute();
+    }, { signal: abortSig });
+
+    var rTimer;
+    if (typeof ResizeObserver !== 'undefined') {
+      var ro = new ResizeObserver(function() { clearTimeout(rTimer); rTimer = setTimeout(recompute, 80); });
+      ro.observe(slider);
+      abortSig.addEventListener('abort', function() { ro.disconnect(); });
+    }
+
+    recompute();
+  }
+  // ────────────────────────────────────────────────────────────────
+
+  function renderCMSBlocks() { renderHeroFromCMS(); renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); renderDoctorGalleryFromCMS(); renderResultsFromCMS(); renderVoicesFromCMS(); }
 
   // Treatments / Procedure category grid — pulled from CMS
   function renderTreatmentsFromCMS() {
