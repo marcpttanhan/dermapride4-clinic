@@ -615,11 +615,11 @@
 
         <hr style="border:0; border-top: 1px solid rgba(20,36,42,0.08); margin: 16px 0;" />
         <p style="font-size:12px; color: var(--dp-ink-500, #5A7180); margin: 0 0 12px; font-family: 'Anuphan', sans-serif;">หัวข้อหลัก · Headline Typography</p>
-        ${txt('บรรทัด 1 · หัวข้อหลัก', 'home.hero.l1', { ph: 'คลินิกความงาม' })}
-        ${txt('บรรทัด 2 · ตัวเอน · Italic accent', 'home.hero.l2', { ph: 'ที่สร้างเสน่ห์.' })}
-        ${txt('บรรทัด 3 · วลีเด่น · Gradient highlight', 'home.hero.l3', { ph: 'ด้วยความซื่อตรง' })}
-        ${txt('บรรทัด 4 · วลีเด่น · Gradient highlight', 'home.hero.l4', { ph: 'และหลักการแห่งสุนทรียศิลป์' })}
-        ${area('คำอธิบาย · Hero description', 'home.hero.side')}
+        ${txt('วลีหลัก · Focal word (ใหญ่ ตัวเอน)', 'home.hero.l1', { ph: 'เสน่ห์' })}
+        ${txt('บรรทัด 2 · Gradient accent', 'home.hero.l2', { ph: 'ที่สร้างจากความซื่อตรง' })}
+        ${txt('บรรทัด 3 · Gradient accent', 'home.hero.l3', { ph: 'และหลักการแห่งสุนทรียศิลป์' })}
+        ${txt('บรรทัด 4 · Gradient accent (ไม่บังคับ)', 'home.hero.l4', { ph: '— เว้นว่างเพื่อซ่อน' })}
+        ${area('คำอธิบาย · พิมพ์แต่ละบรรทัดแยกกัน Enter ได้', 'home.hero.side')}
 
         <hr style="border:0; border-top: 1px solid rgba(20,36,42,0.08); margin: 16px 0;" />
         <p style="font-size:12px; color: var(--dp-ink-500, #5A7180); margin: 0 0 12px; font-family: 'Anuphan', sans-serif;">ปุ่มเรียกร้อง · CTA Buttons</p>
