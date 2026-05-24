@@ -608,6 +608,11 @@
           ${txt('CTA Secondary — text', 'home.hero.ctaSecondary')}
           ${txt('CTA Secondary — link', 'home.hero.ctaSecondaryHref')}
         </div>
+        <hr style="border:0; border-top: 1px solid rgba(20,36,42,0.08); margin: 16px 0;" />
+        <div class="cms-row">
+          ${txt('Stat value (floating card)', 'home.hero.statValue', { ph: '12+' })}
+          ${txt('Stat label (floating card)', 'home.hero.statLabel', { ph: 'YEARS OF ARTISTRY' })}
+        </div>
       </div>
 
       <div class="cms-card">

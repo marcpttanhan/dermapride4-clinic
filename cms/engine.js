@@ -260,7 +260,9 @@
         ctaSecondary: 'ทักหา Facebook',
         ctaSecondaryHref: 'https://www.facebook.com/DermaPrideClinic/',
         backgroundImage: 'assets/welcome-hero.jpg',
-        backgroundVideo: ''
+        backgroundVideo: '',
+        statValue: '12+',
+        statLabel: 'YEARS OF ARTISTRY'
       },
       doctor: {
         role: 'Founder · Aesthetic Physician',
