@@ -253,16 +253,19 @@
         kicker: 'Reel 01 · A Pride of Skin',
         l1: 'คลินิกความงาม',
         l2: 'ที่สร้างเสน่ห์.',
-        l3: 'ด้วยความซื่อตรง และหลักการแห่งสุนทรียศิลป์',
+        l3: 'ด้วยความซื่อตรง',
+        l4: 'และหลักการแห่งสุนทรียศิลป์',
         side: 'DermaPride Clinics — คลินิกที่ผสานศาสตร์ของแพทย์เข้ากับสุนทรียศิลป์ เพื่อสร้างเสน่ห์อันเป็นเอกลักษณ์บนใบหน้าคุณ',
         ctaPrimary: 'จองคิวปรึกษาฟรี',
         ctaPrimaryHref: '#booking',
         ctaSecondary: 'ทักหา Facebook',
         ctaSecondaryHref: 'https://www.facebook.com/DermaPrideClinic/',
+        showFacebook: true,
         backgroundImage: 'assets/welcome-hero.jpg',
-        backgroundVideo: '',
+        backgroundImageMobile: '',
         statValue: '12+',
-        statLabel: 'YEARS OF ARTISTRY'
+        statLabel: 'YEARS OF ARTISTRY',
+        visible: true
       },
       doctor: {
         role: 'Founder · Aesthetic Physician',

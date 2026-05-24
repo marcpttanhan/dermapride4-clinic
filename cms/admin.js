@@ -184,6 +184,17 @@
     </div>`;
   }
 
+  function chk(label, path) {
+    const id = 'c_' + path.replace(/\./g, '_');
+    const cur = CMS.getDraft(path) !== false;
+    return `<div class="cms-field">
+      <label class="cms-cb" for="${id}">
+        <input id="${id}" type="checkbox" data-bind="${path}" ${cur ? 'checked' : ''} />
+        <span>${label}</span>
+      </label>
+    </div>`;
+  }
+
   function bind(root, onAfter) {
     root.querySelectorAll('[data-bind]').forEach(el => {
       el.addEventListener('input', () => {
@@ -591,27 +602,42 @@
       <p class="lead">แก้ทุกอย่างในหน้าหลัก — เห็นผลทันที กด Publish เพื่อให้ขึ้นเว็บจริง</p>
 
       <div class="cms-card">
-        <div class="cms-card-head"><div class="t">Hero · <em>หัวเรื่องหลัก</em></div></div>
-        ${img('Background image / video poster', 'home.hero.backgroundImage', { aspect: 'wide' })}
-        ${txt('Background video URL (optional)', 'home.hero.backgroundVideo', { ph: 'https://...mp4' })}
+        <div class="cms-card-head"><div class="t">Hero · <em>หน้าแรก Split Layout</em></div></div>
+
+        <div class="cms-row" style="align-items:center; padding: 4px 0 12px;">
+          ${chk('แสดง Hero Section', 'home.hero.visible')}
+        </div>
+
+        <hr style="border:0; border-top: 1px solid rgba(20,36,42,0.08); margin: 0 0 16px;" />
+        <p style="font-size:12px; color: var(--dp-ink-500, #5A7180); margin: 0 0 12px; font-family: 'Anuphan', sans-serif;">รูปภาพ · Hero</p>
+        ${img('รูปหลัก · Desktop', 'home.hero.backgroundImage', { aspect: 'portrait' })}
+        ${img('รูปมือถือ · Mobile (ถ้ามี)', 'home.hero.backgroundImageMobile', { aspect: 'wide' })}
+
         <hr style="border:0; border-top: 1px solid rgba(20,36,42,0.08); margin: 16px 0;" />
-        ${txt('Kicker / Eyebrow', 'home.hero.kicker')}
-        ${txt('Headline line 1', 'home.hero.l1')}
-        ${txt('Headline line 2 (italic)', 'home.hero.l2')}
-        ${txt('Headline line 3 (subtitle)', 'home.hero.l3')}
-        ${area('Side paragraph', 'home.hero.side')}
+        <p style="font-size:12px; color: var(--dp-ink-500, #5A7180); margin: 0 0 12px; font-family: 'Anuphan', sans-serif;">หัวข้อหลัก · Headline Typography</p>
+        ${txt('บรรทัด 1 · หัวข้อหลัก', 'home.hero.l1', { ph: 'คลินิกความงาม' })}
+        ${txt('บรรทัด 2 · ตัวเอน · Italic accent', 'home.hero.l2', { ph: 'ที่สร้างเสน่ห์.' })}
+        ${txt('บรรทัด 3 · วลีเด่น · Gradient highlight', 'home.hero.l3', { ph: 'ด้วยความซื่อตรง' })}
+        ${txt('บรรทัด 4 · วลีเด่น · Gradient highlight', 'home.hero.l4', { ph: 'และหลักการแห่งสุนทรียศิลป์' })}
+        ${area('คำอธิบาย · Hero description', 'home.hero.side')}
+
+        <hr style="border:0; border-top: 1px solid rgba(20,36,42,0.08); margin: 16px 0;" />
+        <p style="font-size:12px; color: var(--dp-ink-500, #5A7180); margin: 0 0 12px; font-family: 'Anuphan', sans-serif;">ปุ่มเรียกร้อง · CTA Buttons</p>
         <div class="cms-row">
-          ${txt('CTA Primary — text', 'home.hero.ctaPrimary')}
-          ${txt('CTA Primary — link', 'home.hero.ctaPrimaryHref')}
+          ${txt('ปุ่มหลัก · ข้อความ', 'home.hero.ctaPrimary')}
+          ${txt('ปุ่มหลัก · ลิงก์', 'home.hero.ctaPrimaryHref')}
         </div>
         <div class="cms-row">
-          ${txt('CTA Secondary — text', 'home.hero.ctaSecondary')}
-          ${txt('CTA Secondary — link', 'home.hero.ctaSecondaryHref')}
+          ${txt('ปุ่ม Facebook · ข้อความ', 'home.hero.ctaSecondary')}
+          ${txt('ปุ่ม Facebook · ลิงก์', 'home.hero.ctaSecondaryHref')}
         </div>
+        ${chk('แสดงปุ่ม Facebook', 'home.hero.showFacebook')}
+
         <hr style="border:0; border-top: 1px solid rgba(20,36,42,0.08); margin: 16px 0;" />
+        <p style="font-size:12px; color: var(--dp-ink-500, #5A7180); margin: 0 0 12px; font-family: 'Anuphan', sans-serif;">สถิติ · Floating Stat Card</p>
         <div class="cms-row">
-          ${txt('Stat value (floating card)', 'home.hero.statValue', { ph: '12+' })}
-          ${txt('Stat label (floating card)', 'home.hero.statLabel', { ph: 'YEARS OF ARTISTRY' })}
+          ${txt('ตัวเลข', 'home.hero.statValue', { ph: '12+' })}
+          ${txt('ป้ายกำกับ', 'home.hero.statLabel', { ph: 'YEARS OF ARTISTRY' })}
         </div>
       </div>
 

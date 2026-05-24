@@ -65,7 +65,8 @@
       <h1 class="dp-hero-split__title">
         <span class="l1" data-mask-reveal><span data-cms-text="home.hero.l1">คลินิกความงาม</span></span>
         <span class="l2" data-mask-reveal data-mask-delay="1"><span data-cms-text="home.hero.l2">ที่สร้างเสน่ห์.</span></span>
-        <span class="l3" data-mask-reveal data-mask-delay="2"><span data-cms-text="home.hero.l3">ด้วยความซื่อตรง และหลักการแห่งสุนทรียศิลป์</span></span>
+        <span class="l3" data-mask-reveal data-mask-delay="2"><span data-cms-text="home.hero.l3">ด้วยความซื่อตรง</span></span>
+        <span class="l4" data-mask-reveal data-mask-delay="3"><span data-cms-text="home.hero.l4">และหลักการแห่งสุนทรียศิลป์</span></span>
       </h1>
 
       <p class="dp-hero-split__para" data-veil data-veil-delay="2" data-cms-text="home.hero.side">DermaPride Clinics — คลินิกที่ผสานศาสตร์ของแพทย์เข้ากับสุนทรียศิลป์ เพื่อสร้างเสน่ห์อันเป็นเอกลักษณ์บนใบหน้าคุณ</p>
@@ -960,7 +961,25 @@
     });
   }
 
-  function renderCMSBlocks() { renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); }
+  function renderHeroFromCMS() {
+    if (!window.CMS) return;
+    const fbBtn = document.querySelector('.dpe-btn-split-fb');
+    if (fbBtn) fbBtn.style.display = CMS.get('home.hero.showFacebook') !== false ? '' : 'none';
+    const heroEl = document.querySelector('.dp-hero-split');
+    if (heroEl) heroEl.style.display = CMS.get('home.hero.visible') !== false ? '' : 'none';
+    const heroImg = document.querySelector('.dp-hero-split__img-wrap img');
+    if (heroImg) {
+      const mobileImg = CMS.get('home.hero.backgroundImageMobile');
+      const desktopImg = CMS.get('home.hero.backgroundImage') || 'assets/welcome-hero.jpg';
+      heroImg.src = (window.matchMedia('(max-width: 768px)').matches && mobileImg) ? mobileImg : desktopImg;
+    }
+  }
+
+  window.matchMedia('(max-width: 768px)').addEventListener('change', function() {
+    if (window.CMS) renderHeroFromCMS();
+  });
+
+  function renderCMSBlocks() { renderHeroFromCMS(); renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); }
 
   // Treatments / Procedure category grid — pulled from CMS
   function renderTreatmentsFromCMS() {
