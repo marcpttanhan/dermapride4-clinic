@@ -369,11 +369,10 @@
   line-height: 1.25;
   background: linear-gradient(
     90deg,
-    var(--dp-teal-900) 0%,
-    var(--dp-teal-600) 30%,
-    var(--dp-teal-400) 52%,
-    var(--dp-teal-600) 72%,
-    var(--dp-teal-900) 100%
+    var(--dp-teal-800) 0%,
+    var(--dp-teal-600) 40%,
+    var(--dp-teal-700) 60%,
+    var(--dp-teal-800) 100%
   );
   background-size: 220% auto;
   -webkit-background-clip: text;
