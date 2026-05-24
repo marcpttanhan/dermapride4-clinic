@@ -487,7 +487,7 @@
     body.appendChild(pane);
     bind(pane);
     pane.querySelector('#addVid').addEventListener('click', () => {
-      collAdd('home.voices.videos', { title: '', name: '', videoUrl: '', platform: 'auto', description: '', visible: true });
+      collAdd('home.voices.videos', { title: '', name: '', videoUrl: '', platform: 'auto', embedStatus: 'auto', fallbackUrl: '', description: '', visible: true });
       renderTab();
     });
     const host = pane.querySelector('#vidList');
@@ -520,6 +520,17 @@
             <div class="cms-row">
               <div class="cms-field"><label>ชื่อวิดีโอ / หัวเรื่อง</label><input type="text" data-fld="title" value="${esc(it.title||'')}" /></div>
               <div class="cms-field"><label>ชื่อลูกค้า</label><input type="text" data-fld="name" value="${esc(it.name||'')}" /></div>
+            </div>
+            <div class="cms-row">
+              <div class="cms-field">
+                <label>Embed Mode</label>
+                <select data-fld="embedStatus">
+                  <option value="auto"  ${(!it.embedStatus||it.embedStatus==='auto') ?'selected':''}>Auto (Facebook→link, others→embed)</option>
+                  <option value="link"  ${it.embedStatus==='link'                    ?'selected':''}>Link only (safe fallback)</option>
+                  <option value="embed" ${it.embedStatus==='embed'                   ?'selected':''}>Force embed</option>
+                </select>
+              </div>
+              <div class="cms-field"><label>Fallback URL (override link)</label><input type="url" data-fld="fallbackUrl" value="${esc(it.fallbackUrl||'')}" placeholder="เว้นว่างถ้าใช้ Video URL เดิม" /></div>
             </div>
             <div class="cms-field"><label>คำอธิบาย (optional)</label><input type="text" data-fld="description" value="${esc(it.description||'')}" /></div>
           </div>

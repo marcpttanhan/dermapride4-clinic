@@ -1230,15 +1230,39 @@
 
     var cur = 0;
     var PLAY_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M5 3l14 9-14 9V3z"/></svg>';
+    var EXT_ICON  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>';
 
+    // Returns { platform, embedUrl, directUrl }
     function parseEmbed(url) {
       var m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-      if (m) return 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0&modestbranding=1';
+      if (m) return { platform: 'youtube',  directUrl: url,
+        embedUrl: 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0&modestbranding=1' };
       m = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
-      if (m) return 'https://www.tiktok.com/embed/v2/' + m[1];
-      if (url.indexOf('facebook.com') !== -1)
-        return 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(url) + '&show_text=false&width=640&allowfullscreen=true';
-      return url;
+      if (m) return { platform: 'tiktok',   directUrl: url,
+        embedUrl: 'https://www.tiktok.com/embed/v2/' + m[1] };
+      if (url.indexOf('facebook.com') !== -1 || url.indexOf('fb.watch') !== -1)
+        return { platform: 'facebook', directUrl: url,
+          embedUrl: 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(url) + '&show_text=false&width=640&allowfullscreen=true' };
+      return { platform: 'other', embedUrl: url, directUrl: url };
+    }
+
+    // Show a safe link-card fallback when iframe is unavailable or blocked
+    function showFallback(frame, it, directUrl) {
+      var plat = it.platform || 'auto';
+      if (plat === 'auto' && it.videoUrl) {
+        var u = it.videoUrl;
+        if (u.indexOf('facebook.com') !== -1 || u.indexOf('fb.watch') !== -1) plat = 'facebook';
+        else if (u.indexOf('youtube.com') !== -1 || u.indexOf('youtu.be') !== -1) plat = 'youtube';
+        else if (u.indexOf('tiktok.com') !== -1) plat = 'tiktok';
+      }
+      var LABELS = { facebook: 'Watch on Facebook', youtube: 'Watch on YouTube', tiktok: 'Watch on TikTok' };
+      var btnLabel = LABELS[plat] || 'Watch Video';
+      var href = escapeRev(it.fallbackUrl || directUrl || it.videoUrl || '#');
+      frame.innerHTML = '<div class="dp-vslider-fallback">'
+        + '<div class="dp-vslider-play-btn">' + PLAY_ICON + '</div>'
+        + '<a class="dp-vslider-fallback-btn" href="' + href + '" target="_blank" rel="noopener noreferrer">'
+        + EXT_ICON + ' ' + escapeRev(btnLabel) + '</a>'
+        + '</div>';
     }
 
     function allSlides() { return Array.prototype.slice.call(track.querySelectorAll('.dp-vslider-slide')); }
@@ -1259,22 +1283,53 @@
 
     function mountIframe(slideEl, idx) {
       var frame = slideEl.querySelector('.dp-vslider-frame');
-      if (frame.querySelector('iframe')) return;
+      if (frame.querySelector('iframe') || frame.querySelector('.dp-vslider-fallback')) return;
       var it = items[idx];
       if (!it || !it.videoUrl) return;
+
+      var parsed = parseEmbed(it.videoUrl);
+
+      // embedStatus 'link' → always show fallback card, no iframe attempt
+      // Facebook + embedStatus 'auto' (default) → always show fallback (embed is unreliable)
+      // embedStatus 'embed' → force iframe even for Facebook (admin override)
+      var forceLink  = it.embedStatus === 'link';
+      var forceFb    = parsed.platform === 'facebook' && it.embedStatus !== 'embed';
+      if (forceLink || forceFb) {
+        showFallback(frame, it, parsed.directUrl);
+        return;
+      }
+
       var ifrm = document.createElement('iframe');
-      ifrm.src = parseEmbed(it.videoUrl);
+      ifrm.src = parsed.embedUrl;
       ifrm.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
       ifrm.allowFullscreen = true;
       ifrm.loading = 'lazy';
       ifrm.title = escapeRev(it.title || 'Video');
+
+      // Timeout safety-net: if neither load nor error fires within 7s, show fallback
+      var loadOk = false;
+      var failTimer = setTimeout(function() {
+        if (!loadOk && frame.contains(ifrm)) {
+          frame.removeChild(ifrm);
+          showFallback(frame, it, parsed.directUrl);
+        }
+      }, 7000);
+      ifrm.addEventListener('load',  function() { loadOk = true; clearTimeout(failTimer); });
+      ifrm.addEventListener('error', function() {
+        clearTimeout(failTimer);
+        if (frame.contains(ifrm)) { frame.removeChild(ifrm); showFallback(frame, it, parsed.directUrl); }
+      });
+
+      frame._vsTimer = failTimer; // stored for cleanup on unmount
       frame.innerHTML = '';
       frame.appendChild(ifrm);
     }
 
     function unmountIframe(slideEl) {
       var frame = slideEl && slideEl.querySelector('.dp-vslider-frame');
-      if (!frame || !frame.querySelector('iframe')) return;
+      if (!frame) return;
+      if (frame._vsTimer) { clearTimeout(frame._vsTimer); frame._vsTimer = null; }
+      if (!frame.querySelector('iframe') && !frame.querySelector('.dp-vslider-fallback')) return;
       frame.innerHTML = '<div class="dp-vslider-placeholder" role="button" tabindex="0" aria-label="เล่นวิดีโอ"><div class="dp-vslider-play-btn">' + PLAY_ICON + '</div></div>';
     }
 
