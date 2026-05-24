@@ -332,14 +332,14 @@
   flex-shrink: 0;
 }
 
-/* Hero headline — local Anuphan variable font, cinematic editorial */
+/* Hero headline — local Anuphan variable font, luxury editorial */
 .dp-hero-split__title {
   font-family: var(--dp-sans);
-  font-weight: 600;
+  font-weight: 300;
   font-size: clamp(40px, 5.8vw, 68px);
   line-height: 1.3;
-  letter-spacing: -0.025em;
-  color: var(--dp-ink-900);
+  letter-spacing: -0.015em;
+  color: #000;
   font-variation-settings: normal;
   margin: 0 0 28px;
   -webkit-font-smoothing: antialiased;
@@ -347,59 +347,59 @@
   text-rendering: optimizeLegibility;
 }
 
-/* l1 — primary editorial focal line: "เสน่ห์ที่สร้าง" */
+/* l1 — primary focal line: "เสน่ห์ที่สร้าง" — light, large, black */
 .dp-hero-split__title .l1 {
   display: block;
-  font-weight: 600;
+  font-weight: 300;
   font-style: normal;
   font-size: 1em;
-  letter-spacing: -0.025em;
-  color: var(--dp-ink-900);
+  letter-spacing: -0.015em;
+  color: #000;
   line-height: 1.3;
   margin-bottom: 0;
 }
 
-/* l2 — mixed: dark "จาก" + teal italic "ความซื่อตรง" */
+/* l2 — inline: "จาก" (black) + "ความซื่อตรง" (green italic) */
 .dp-hero-split__title .l2 {
   display: block;
-  font-weight: 600;
-  font-size: 0.92em;
-  letter-spacing: -0.025em;
+  font-weight: 300;
+  font-size: 1em;
+  letter-spacing: -0.015em;
   line-height: 1.3;
-  margin-bottom: 0.08em;
+  margin-bottom: 0.1em;
 }
 
 .dp-hero-split__title .l2-plain {
-  color: var(--dp-ink-900);
+  color: #000;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 300;
 }
 
 .dp-hero-split__title .l2-accent {
-  color: var(--dp-teal-600);
+  color: #1B8A5A;
   font-style: italic;
-  font-weight: 500;
+  font-weight: 300;
 }
 
-/* l3 — grounded editorial statement: "และหลักการแห่งสุนทรียศิลป์" */
+/* l3 — grounded statement: bold, black, smaller than l1 */
 .dp-hero-split__title .l3 {
   display: block;
   font-weight: 700;
   font-style: normal;
   font-size: 0.46em;
-  letter-spacing: -0.01em;
-  color: var(--dp-ink-900);
+  letter-spacing: -0.005em;
+  color: #000;
   line-height: 1.5;
-  margin-top: 0.3em;
+  margin-top: 0.35em;
 }
 
 /* l4 — optional additional line, hidden when empty via renderHeroFromCMS */
 .dp-hero-split__title .l4 {
   display: block;
-  font-weight: 500;
+  font-weight: 400;
   font-size: 0.46em;
-  letter-spacing: -0.01em;
-  color: var(--dp-ink-700);
+  letter-spacing: -0.005em;
+  color: #333;
   line-height: 1.5;
   margin-top: 0.1em;
 }
