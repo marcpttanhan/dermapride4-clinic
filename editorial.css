@@ -343,7 +343,15 @@
   margin: 0 0 32px;
   text-wrap: balance;
 }
-/* l1 — FOCAL word. Full italic display, deep teal. The emotional centre. */
+/* ── l-row: flex container for l1 + l2 on the same visual line ── */
+.dp-hero-split__title .l-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.13em;
+  margin-bottom: 6px;
+}
+
+/* l1 — FOCAL word: large dark italic display */
 .dp-hero-split__title .l1 {
   display: block;
   font-family: var(--dp-display);
@@ -351,43 +359,52 @@
   font-style: italic;
   font-size: 1em;
   letter-spacing: -0.035em;
-  color: var(--dp-teal-700);
+  color: var(--dp-ink-900);
   font-variation-settings: 'opsz' 144, 'SOFT' 100;
-  line-height: 0.94;
-  margin-bottom: 10px;
+  line-height: 0.92;
 }
 
-/* l2 — gradient teal, same visual family as l3 */
+/* l2 — inline secondary phrase, dark sans, baseline-aligned beside l1 */
 .dp-hero-split__title .l2 {
   display: block;
   font-family: var(--dp-sans);
   font-weight: 500;
-  font-size: 0.66em;
+  font-size: 0.42em;
   font-style: normal;
   font-variation-settings: normal;
   letter-spacing: -0.01em;
-  line-height: 1.25;
-  color: var(--dp-ink-900);
-  margin-bottom: 0;
+  line-height: 1.2;
+  color: var(--dp-ink-700);
+  padding-bottom: 0.14em;
 }
 
-/* l3, l4 — gradient teal supporting lines */
-.dp-hero-split__title .l3,
+/* l3 — emotional teal italic accent: Fraunces italic, shimmer */
+.dp-hero-split__title .l3 {
+  display: block;
+  font-family: var(--dp-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 0.76em;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin-top: 6px;
+  font-variation-settings: 'opsz' 72, 'SOFT' 80;
+}
+
+/* l4 — bold dark editorial statement */
 .dp-hero-split__title .l4 {
   display: block;
   font-family: var(--dp-sans);
-  font-weight: 500;
-  font-size: 0.62em;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
+  font-weight: 600;
+  font-size: 0.5em;
+  letter-spacing: 0.005em;
+  line-height: 1.35;
+  color: var(--dp-ink-900);
+  margin-top: 6px;
 }
-.dp-hero-split__title .l3 { margin-top: 1px; }
-.dp-hero-split__title .l4 { margin-top: 1px; }
 
-/* Gradient shimmer on l2/l3/l4 child spans (avoids clip/inheritance bug) */
-.dp-hero-split__title .l2 > span,
-.dp-hero-split__title .l3 > span,
-.dp-hero-split__title .l4 > span {
+/* Teal shimmer — l3 only (the emotional accent line) */
+.dp-hero-split__title .l3 > span {
   display: inline-block;
   background: linear-gradient(
     90deg,
@@ -402,6 +419,12 @@
   -webkit-text-fill-color: transparent;
   color: var(--dp-teal-700);
   animation: dp-hero-shimmer 11s linear infinite;
+}
+
+/* l2 + l4 child spans — plain text, no gradient */
+.dp-hero-split__title .l2 > span,
+.dp-hero-split__title .l4 > span {
+  -webkit-text-fill-color: currentColor;
 }
 
 @keyframes dp-hero-shimmer {
@@ -551,6 +574,8 @@
   }
   .dp-hero-split__img-wrap { aspect-ratio: 4/3; }
   .dp-hero-split__stat { right: 0; bottom: -16px; }
+  /* Tighter mobile scale so l-row (l1 + l2) fits on one line */
+  .dp-hero-split__title { font-size: clamp(34px, 9vw, 48px); }
 }
 
 /* ============================================================
@@ -1724,8 +1749,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .dpe-hero-video img { animation: none; }
-  .dp-hero-split__title .l2 > span,
-  .dp-hero-split__title .l3 > span,
-  .dp-hero-split__title .l4 > span { animation: none; background-position: 0% center; }
+  .dp-hero-split__title .l3 > span { animation: none; background-position: 0% center; }
   /* keep our gentle one-time fades — they don't flash or repeat */
 }
