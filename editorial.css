@@ -332,76 +332,82 @@
   flex-shrink: 0;
 }
 
-/* Hero headline — local Anuphan variable font, luxury editorial */
+/* ── Hero headline — Anuphan variable, premium agency typography ── */
 .dp-hero-split__title {
   font-family: var(--dp-sans);
   font-weight: 300;
-  font-size: clamp(40px, 5.8vw, 68px);
+  font-size: clamp(44px, 6.4vw, 76px);
   line-height: 1.3;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.03em;
   color: #000;
   font-variation-settings: normal;
-  margin: 0 0 28px;
+  font-style: normal;
+  margin: 0 0 32px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* l1 — primary focal line: "เสน่ห์ที่สร้าง" — light, large, black */
+/* L1 — "เสน่ห์ที่สร้าง" — dominant, light, pure black */
 .dp-hero-split__title .l1 {
   display: block;
   font-weight: 300;
   font-style: normal;
   font-size: 1em;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.03em;
   color: #000;
   line-height: 1.3;
   margin-bottom: 0;
 }
 
-/* l2 — inline: "จาก" (black) + "ความซื่อตรง" (green italic) */
+/* L2 — "จาก ความซื่อตรง" — same scale as L1 */
 .dp-hero-split__title .l2 {
   display: block;
   font-weight: 300;
+  font-style: normal;
   font-size: 1em;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.03em;
   line-height: 1.3;
-  margin-bottom: 0.1em;
+  margin-bottom: 0.18em;
 }
 
+/* "จาก" — light black, matches L1 rhythm */
 .dp-hero-split__title .l2-plain {
   color: #000;
   font-style: normal;
   font-weight: 300;
 }
 
+/* "ความซื่อตรง" — green keyword accent, weight contrast, no italic */
 .dp-hero-split__title .l2-accent {
   color: #1B8A5A;
-  font-style: italic;
-  font-weight: 300;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
-/* l3 — grounded statement: bold, black, smaller than l1 */
+/* L3 — "และหลักการแห่งสุนทรีศิลป์" — bold grounded statement */
 .dp-hero-split__title .l3 {
   display: block;
   font-weight: 700;
   font-style: normal;
-  font-size: 0.46em;
-  letter-spacing: -0.005em;
+  font-size: 0.44em;
+  letter-spacing: 0em;
   color: #000;
-  line-height: 1.5;
-  margin-top: 0.35em;
+  line-height: 1.55;
+  margin-top: 0.5em;
 }
 
-/* l4 — optional additional line, hidden when empty via renderHeroFromCMS */
+/* L4 — optional fourth line, hidden when empty */
 .dp-hero-split__title .l4 {
   display: block;
   font-weight: 400;
-  font-size: 0.46em;
-  letter-spacing: -0.005em;
-  color: #333;
-  line-height: 1.5;
-  margin-top: 0.1em;
+  font-style: normal;
+  font-size: 0.44em;
+  letter-spacing: 0em;
+  color: #444;
+  line-height: 1.55;
+  margin-top: 0.15em;
 }
 
 /* Editorial paragraph — intentional line breaks, luxury caption treatment */
