@@ -697,6 +697,81 @@
     body.appendChild(pane);
     bind(pane);
     bindImageFields(pane);
+
+    // ── Artistry Gallery card (collection) ────────────────────────────────────
+    const galCard = document.createElement('div');
+    galCard.innerHTML = `
+      <div class="cms-card" style="margin-top: 24px;">
+        <div class="cms-card-head"><div class="t">Artistry Gallery · <em>แกลเลอรีใต้โปรไฟล์</em></div></div>
+        <div class="cms-row" style="align-items:center; padding: 4px 0 12px;">
+          ${chk('แสดง Artistry Gallery', 'home.doctorGallery.visible')}
+          ${chk('Autoplay', 'home.doctorGallery.autoplay')}
+        </div>
+        <hr style="border:none; border-top:1px solid var(--c-bdr); margin: 0 0 14px;" />
+        <div class="cms-row">
+          ${txt('Gallery Title', 'home.doctorGallery.title', { ph: 'Artistry · in Practice' })}
+          ${txt('Gallery Subtitle', 'home.doctorGallery.sub', { ph: 'บรรยากาศ · ปรัชญา · อัตลักษณ์' })}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin: 14px 0 10px;">
+          <h3 style="margin:0; font-size:14px;">ภาพ ${(CMS.getDraft('home.doctorGallery.items')||[]).length} รูป</h3>
+          <button class="cms-btn cms-btn--primary cms-btn--sm" id="addGal">${I.plus} เพิ่มรูป</button>
+        </div>
+        <div id="galList"></div>
+      </div>
+    `;
+    pane.appendChild(galCard);
+    bind(galCard);
+
+    galCard.querySelector('#addGal').addEventListener('click', () => {
+      collAdd('home.doctorGallery.items', { image: '', caption: '', quote: '', alt: '', visible: true });
+      renderTab();
+    });
+
+    const galHost = galCard.querySelector('#galList');
+    const galItems = CMS.getDraft('home.doctorGallery.items') || [];
+    if (!galItems.length) {
+      galHost.innerHTML = '<div class="cms-empty"><h4>ยังไม่มี <em>ภาพ</em></h4><p>คลิก "เพิ่มรูป" เพื่อเริ่มต้น</p></div>';
+    } else {
+      galItems.forEach((it, idx) => {
+        const card = document.createElement('div');
+        card.className = 'cms-card cms-itm' + (it.visible === false ? ' is-hidden' : '');
+        card.style.cssText = 'margin-bottom:12px;';
+        card.innerHTML = `
+          <div class="cms-review-grid">
+            <div class="cms-img-field" data-img-path="home.doctorGallery.items.${idx}.image">
+              <div class="cms-img-preview aspect-portrait">
+                ${it.image ? `<img src="${esc(it.image)}" alt="" />` : `<div class="empty">${I.image}<span>เพิ่มรูป</span></div>`}
+                <div class="cms-img-overlay">
+                  <button data-act="upload">${I.upload}</button>
+                  <button data-act="library">${I.image}</button>
+                  ${it.image ? `<button data-act="clear" class="danger">${I.x}</button>` : ''}
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="cms-field"><label>Caption · คำบรรยาย</label><input type="text" data-fld="caption" value="${esc(it.caption||'')}" placeholder="ความซื่อตรงคือรากฐาน" /></div>
+              <div class="cms-field"><label>Quote (ไม่บังคับ)</label><input type="text" data-fld="quote" value="${esc(it.quote||'')}" placeholder="วลีสั้น · italic" /></div>
+              <div class="cms-field"><label>Alt text</label><input type="text" data-fld="alt" value="${esc(it.alt||'')}" placeholder="คำอธิบายรูปสำหรับ SEO" /></div>
+              ${itemActions('home.doctorGallery.items', it, idx, galItems.length)}
+            </div>
+          </div>
+        `;
+        galHost.appendChild(card);
+        card.querySelectorAll('[data-fld]').forEach(inp => {
+          inp.addEventListener('input', () => collUpdate('home.doctorGallery.items', it.id, { [inp.dataset.fld]: inp.value }));
+        });
+        const setImg = src => { collUpdate('home.doctorGallery.items', it.id, { image: src }); renderTab(); };
+        const fld = card.querySelector('.cms-img-field');
+        fld.querySelector('[data-act="upload"]')?.addEventListener('click', () => {
+          const f = document.createElement('input'); f.type = 'file'; f.accept = 'image/*';
+          f.onchange = async () => { if (f.files[0]) { const item = await CMS.media.add(f.files[0]); setImg(item.src); } };
+          f.click();
+        });
+        fld.querySelector('[data-act="library"]')?.addEventListener('click', () => openMediaPicker(setImg));
+        fld.querySelector('[data-act="clear"]')?.addEventListener('click', () => setImg(''));
+        bindItemActions(card, 'home.doctorGallery.items', it);
+      });
+    }
   }
 
   // ---------- REVIEWS ----------

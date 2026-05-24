@@ -1527,6 +1527,198 @@
 [data-mask-reveal][data-mask-delay="3"] > span { transition-delay: 420ms !important; }
 
 /* ============================================================
+   Doctor Artistry Gallery strip
+============================================================ */
+
+.dp-artistry-strip {
+  background: var(--dp-ink-950, #0a0a0a);
+  padding: 80px 0 88px;
+  overflow: hidden;
+}
+
+.dp-artistry-strip__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.dp-artistry-strip__hd {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.dp-artistry-strip__kicker {
+  font-family: var(--dp-sans);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dp-teal-500, #4db6ac);
+  margin-bottom: 16px;
+}
+
+.dp-artistry-strip__title {
+  font-family: var(--dp-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #f5f0e8;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0 0 12px;
+  font-variation-settings: 'opsz' 72, 'SOFT' 80;
+}
+
+.dp-artistry-strip__sub {
+  font-family: var(--dp-sans);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: rgba(245,240,232,0.45);
+  margin: 0;
+}
+
+/* Track + cards */
+.dp-artistry-strip__track-wrap {
+  position: relative;
+}
+
+.dp-artistry-strip__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  gap: 20px;
+  cursor: grab;
+  user-select: none;
+}
+.dp-artistry-strip__track::-webkit-scrollbar { display: none; }
+.dp-artistry-strip__track:active { cursor: grabbing; }
+
+.dp-artistry-strip__card {
+  flex: 0 0 calc(33.333% - 14px);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.dp-artistry-strip__card-img {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: 2px;
+  overflow: hidden;
+  background: #111;
+}
+
+.dp-artistry-strip__card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.dp-artistry-strip__card:hover .dp-artistry-strip__card-img img {
+  transform: scale(1.04);
+}
+
+.dp-artistry-strip__card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.1) 55%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 28px 22px;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.dp-artistry-strip__card:hover .dp-artistry-strip__card-overlay,
+.dp-artistry-strip__card:focus-within .dp-artistry-strip__card-overlay {
+  opacity: 1;
+}
+
+.dp-artistry-strip__card-caption {
+  font-family: var(--dp-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(245,240,232,0.9);
+}
+
+.dp-artistry-strip__card-quote {
+  font-family: var(--dp-display);
+  font-style: italic;
+  font-size: 12px;
+  font-weight: 300;
+  color: rgba(245,240,232,0.6);
+  line-height: 1.5;
+  font-variation-settings: 'opsz' 20, 'SOFT' 60;
+}
+
+/* Arrow buttons */
+.dp-artistry-strip__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(245,240,232,0.18);
+  background: rgba(10,10,10,0.7);
+  backdrop-filter: blur(8px);
+  color: rgba(245,240,232,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+  opacity: 0;
+}
+.dp-artistry-strip__track-wrap:hover .dp-artistry-strip__arrow { opacity: 1; }
+.dp-artistry-strip__arrow:hover { background: rgba(30,30,30,0.9); border-color: rgba(245,240,232,0.4); }
+.dp-artistry-strip__arrow--prev { left: -16px; }
+.dp-artistry-strip__arrow--next { right: -16px; }
+
+/* Dots */
+.dp-artistry-strip__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.dp-artistry-strip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(245,240,232,0.2);
+  cursor: pointer;
+  transition: background 0.25s, transform 0.25s;
+  padding: 0;
+}
+
+.dp-artistry-strip__dot.is-active {
+  background: var(--dp-teal-400, #80cbc4);
+  transform: scale(1.4);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .dp-artistry-strip__card { flex: 0 0 calc(50% - 10px); }
+  .dp-artistry-strip__inner { padding: 0 24px; }
+}
+
+@media (max-width: 600px) {
+  .dp-artistry-strip { padding: 56px 0 64px; }
+  .dp-artistry-strip__card { flex: 0 0 calc(80vw); }
+  .dp-artistry-strip__inner { padding: 0 20px; }
+  .dp-artistry-strip__arrow { display: none; }
+}
+
+/* ============================================================
    Reveal animations - editorial
 ============================================================ */
 

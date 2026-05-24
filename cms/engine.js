@@ -280,6 +280,17 @@
         experience: '12+ years · 50,000+ cases',
         verificationUrl: 'https://www.mct.or.th/'
       },
+      doctorGallery: {
+        visible: true,
+        title: 'Artistry · in Practice',
+        sub: 'บรรยากาศ · ปรัชญา · อัตลักษณ์',
+        autoplay: true,
+        items: [
+          { id: 'dg_1', image: 'assets/doctor.jpg',                  caption: 'ความซื่อตรงคือรากฐาน',          quote: '', alt: 'Dr. Arpa at work',      visible: true },
+          { id: 'dg_2', image: 'assets/clinic-watcharaphon-1.jpg',   caption: 'สุนทรียศิลป์ในทุกขั้นตอน',      quote: '', alt: 'Treatment atmosphere', visible: true },
+          { id: 'dg_3', image: 'assets/clinic-watcharaphon-2.jpg',   caption: 'บรรยากาศที่ออกแบบมาเพื่อคุณ',  quote: '', alt: 'Clinic interior',       visible: true }
+        ]
+      },
       contact: {
         phone: '065-859-8599',
         facebook: 'https://www.facebook.com/DermaPrideClinic/',

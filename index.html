@@ -212,6 +212,31 @@
 </section>
 
 <!-- ============================================================
+     04 · DOCTOR ARTISTRY GALLERY
+============================================================ -->
+<section class="dp-artistry-strip" id="doctorGallery" data-screen-label="04 Artistry">
+  <div class="dp-artistry-strip__inner">
+    <div class="dp-artistry-strip__hd" data-veil>
+      <div class="dp-artistry-strip__kicker">ARTISTRY · IN PRACTICE</div>
+      <h2 class="dp-artistry-strip__title" data-cms-text="home.doctorGallery.title">Artistry · in Practice</h2>
+      <p class="dp-artistry-strip__sub" data-cms-text="home.doctorGallery.sub">บรรยากาศ · ปรัชญา · อัตลักษณ์</p>
+    </div>
+    <div class="dp-artistry-strip__track-wrap" data-veil data-veil-delay="1">
+      <div class="dp-artistry-strip__track" id="artTrack">
+        <!-- cards injected by renderDoctorGalleryFromCMS() -->
+      </div>
+      <button class="dp-artistry-strip__arrow dp-artistry-strip__arrow--prev" id="artPrev" aria-label="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="dp-artistry-strip__arrow dp-artistry-strip__arrow--next" id="artNext" aria-label="Next">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div class="dp-artistry-strip__dots" id="artDots"></div>
+  </div>
+</section>
+
+<!-- ============================================================
      07 · MORE TREATMENTS — editorial grid
 ============================================================ -->
 <section class="dpe-chapter dpe-chapter--paper" id="treatments" data-screen-label="07 Treatments">
@@ -987,7 +1012,91 @@
     if (window.CMS) renderHeroFromCMS();
   });
 
-  function renderCMSBlocks() { renderHeroFromCMS(); renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); }
+  function renderDoctorGalleryFromCMS() {
+    if (!window.CMS) return;
+    const sec = document.getElementById('doctorGallery');
+    if (!sec) return;
+    const visible = CMS.get('home.doctorGallery.visible') !== false;
+    sec.style.display = visible ? '' : 'none';
+    if (!visible) return;
+
+    const track = document.getElementById('artTrack');
+    const dotsEl = document.getElementById('artDots');
+    if (!track) return;
+
+    const items = (CMS.get('home.doctorGallery.items') || []).filter(it => it.visible !== false);
+    if (!items.length) { track.innerHTML = ''; if (dotsEl) dotsEl.innerHTML = ''; return; }
+
+    track.innerHTML = items.map(it => `
+      <div class="dp-artistry-strip__card">
+        <div class="dp-artistry-strip__card-img">
+          <img src="${it.image || 'assets/doctor.jpg'}" alt="${(it.alt || '').replace(/"/g,'&quot;')}" loading="lazy" />
+          <div class="dp-artistry-strip__card-overlay">
+            ${it.caption ? `<div class="dp-artistry-strip__card-caption">${it.caption.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>` : ''}
+            ${it.quote  ? `<div class="dp-artistry-strip__card-quote">${it.quote.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`   : ''}
+          </div>
+        </div>
+      </div>`).join('');
+
+    if (dotsEl) {
+      dotsEl.innerHTML = items.map((_, i) => `<button class="dp-artistry-strip__dot${i===0?' is-active':''}" data-i="${i}" aria-label="Slide ${i+1}"></button>`).join('');
+    }
+
+    initArtistrySlider(items.length);
+  }
+
+  // ── Artistry Slider ─────────────────────────────────────────────────────────
+  let _artTimer = null;
+  function initArtistrySlider(total) {
+    const track  = document.getElementById('artTrack');
+    const dotsEl = document.getElementById('artDots');
+    const prev   = document.getElementById('artPrev');
+    const next   = document.getElementById('artNext');
+    if (!track || total < 1) return;
+
+    let cur = 0;
+    const autoplay = window.CMS ? CMS.get('home.doctorGallery.autoplay') !== false : true;
+
+    function goTo(idx) {
+      cur = (idx + total) % total;
+      track.scrollTo({ left: cur * track.offsetWidth, behavior: 'smooth' });
+      dotsEl && dotsEl.querySelectorAll('.dp-artistry-strip__dot').forEach((d, i) => d.classList.toggle('is-active', i === cur));
+    }
+
+    prev && prev.addEventListener('click', () => { goTo(cur - 1); resetTimer(); });
+    next && next.addEventListener('click', () => { goTo(cur + 1); resetTimer(); });
+    dotsEl && dotsEl.addEventListener('click', e => {
+      const d = e.target.closest('.dp-artistry-strip__dot');
+      if (d) { goTo(+d.dataset.i); resetTimer(); }
+    });
+
+    // Sync active dot on native scroll (touch swipe)
+    let snapRaf;
+    track.addEventListener('scroll', () => {
+      clearTimeout(snapRaf);
+      snapRaf = setTimeout(() => {
+        const idx = Math.round(track.scrollLeft / (track.offsetWidth || 1));
+        cur = (idx + total) % total;
+        dotsEl && dotsEl.querySelectorAll('.dp-artistry-strip__dot').forEach((d, i) => d.classList.toggle('is-active', i === cur));
+      }, 80);
+    }, { passive: true });
+
+    // Mouse drag
+    let dragX = 0, dragging = false;
+    track.addEventListener('mousedown',  e => { dragging = true; dragX = e.clientX; });
+    track.addEventListener('mouseleave', () => { dragging = false; });
+    track.addEventListener('mouseup',    e => {
+      if (!dragging) return; dragging = false;
+      const diff = dragX - e.clientX;
+      if (Math.abs(diff) > 40) { goTo(diff > 0 ? cur + 1 : cur - 1); resetTimer(); }
+    });
+
+    if (_artTimer) clearInterval(_artTimer);
+    function resetTimer() { if (_artTimer) clearInterval(_artTimer); if (autoplay) _artTimer = setInterval(() => goTo(cur + 1), 4500); }
+    if (autoplay) _artTimer = setInterval(() => goTo(cur + 1), 4500);
+  }
+
+  function renderCMSBlocks() { renderHeroFromCMS(); renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); renderDoctorGalleryFromCMS(); }
 
   // Treatments / Procedure category grid — pulled from CMS
   function renderTreatmentsFromCMS() {
