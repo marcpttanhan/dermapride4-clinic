@@ -6,8 +6,16 @@
 
 @font-face {
   font-family: 'Anuphan';
-  src: url('assets/fonts/Anuphan.ttf') format('truetype-variations');
-  font-weight: 100 800;
+  src: url('assets/fonts/Anuphan.ttf') format('truetype');
+  font-weight: 100 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Anuphan';
+  src: url('assets/fonts/Anuphan.ttf') format('truetype');
+  font-weight: 100 700;
+  font-style: italic;
   font-display: swap;
 }
 
