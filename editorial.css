@@ -381,8 +381,8 @@
 /* "ความซื่อตรง" — green keyword accent, weight contrast, no italic */
 .dp-hero-split__title .l2-accent {
   color: #1B8A5A;
-  font-style: normal;
-  font-weight: 500;
+  font-style: italic;
+  font-weight: 400;
   letter-spacing: -0.01em;
 }
 
