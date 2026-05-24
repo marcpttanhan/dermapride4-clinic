@@ -367,6 +367,15 @@
   font-size: 0.62em;
   letter-spacing: -0.01em;
   line-height: 1.25;
+  /* gradient applied to > span below — not here, to avoid clip/inheritance issues */
+}
+.dp-hero-split__title .l3 { margin-top: 0; }
+.dp-hero-split__title .l4 { margin-top: 1px; }
+
+/* Target the actual text-bearing child span directly */
+.dp-hero-split__title .l3 > span,
+.dp-hero-split__title .l4 > span {
+  display: inline-block;
   background: linear-gradient(
     90deg,
     var(--dp-teal-800) 0%,
@@ -378,10 +387,9 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: var(--dp-teal-700); /* solid fallback for non-supporting browsers */
   animation: dp-hero-shimmer 11s linear infinite;
 }
-.dp-hero-split__title .l3 { margin-top: 0; }
-.dp-hero-split__title .l4 { margin-top: 1px; }
 
 @keyframes dp-hero-shimmer {
   0%   { background-position: 0% center; }
@@ -1506,7 +1514,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .dpe-hero-video img { animation: none; }
-  .dp-hero-split__title .l3,
-  .dp-hero-split__title .l4 { animation: none; background-position: 0% center; }
+  .dp-hero-split__title .l3 > span,
+  .dp-hero-split__title .l4 > span { animation: none; background-position: 0% center; }
   /* keep our gentle one-time fades — they don't flash or repeat */
 }
