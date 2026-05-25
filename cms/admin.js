@@ -1225,6 +1225,20 @@
     `;
     body.appendChild(pane);
 
+    // Chapter 11 section header
+    const hdrCard = document.createElement('div');
+    hdrCard.className = 'cms-card';
+    hdrCard.innerHTML = `
+      <div class="cms-card-head"><div class="t">Section header · Chapter 11</div></div>
+      ${txt('Chapter kicker', 'home.chapter11.kicker', { ph: 'Chapter 11 · Where to find us' })}
+      <div class="cms-row">
+        ${txt('Title (plain)', 'home.chapter11.title',   { ph: 'สองสาขา.' })}
+        ${txt('Title (em / styled)', 'home.chapter11.titleEm', { ph: 'มาตรฐานเดียว.' })}
+      </div>
+      ${area('Subtitle paragraph', 'home.chapter11.sub')}
+    `;
+    pane.appendChild(hdrCard);
+
     const branches = CMS.getDraft('home.branches') || [];
     branches.forEach((b, i) => {
       const card = document.createElement('div');
@@ -1236,11 +1250,20 @@
           ${img('Image 2', `home.branches.${i}.image2`, { aspect: 'square' })}
           ${img('Image 3', `home.branches.${i}.image3`, { aspect: 'square' })}
         </div>
+        ${txt('Branch tag', `home.branches.${i}.tag`, { ph: 'Branch 01 · Name' })}
         ${txt('Name', `home.branches.${i}.name`)}
         ${area('Address', `home.branches.${i}.address`)}
         <div class="cms-row">
           ${txt('Phone', `home.branches.${i}.phone`)}
           ${txt('License No.', `home.branches.${i}.license`)}
+        </div>
+        <div class="cms-row">
+          ${txt('Info row 1 label', `home.branches.${i}.infoRow1Key`, { ph: 'Parking' })}
+          ${txt('Info row 1 value', `home.branches.${i}.infoRow1Val`, { ph: 'ฟรี · จอดสะดวก' })}
+        </div>
+        <div class="cms-row">
+          ${txt('Info row 2 label', `home.branches.${i}.infoRow2Key`, { ph: 'Access' })}
+          ${txt('Info row 2 value', `home.branches.${i}.infoRow2Val`, { ph: 'ใกล้ทางด่วน' })}
         </div>
         ${txt('Google Maps URL', `home.branches.${i}.mapUrl`, { ph: 'https://...' })}
         ${txt('Map embed URL', `home.branches.${i}.mapEmbed`, { ph: 'https://www.google.com/maps?q=...&output=embed' })}

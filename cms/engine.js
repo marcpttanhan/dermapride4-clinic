@@ -323,28 +323,44 @@
         instagram: 'https://www.instagram.com/dermaprideclinics/',
         tiktok: 'https://www.tiktok.com/@drarpaartistdoctor'
       },
+      chapter11: {
+        kicker:  'Chapter 11 · Where to find us',
+        title:   'สองสาขา.',
+        titleEm: 'มาตรฐานเดียว.',
+        sub:     'ทั้งสองสาขามีทีมแพทย์ ระบบ ราคา และคุณภาพการดูแลในมาตรฐานเดียวกัน — เลือกที่สะดวกการเดินทางของคุณ'
+      },
       branches: [
         {
-          name: 'DermaPride · วัชรพล',
-          address: 'ถนนวัชรพล กรุงเทพมหานคร',
-          license: '12101005467',
-          phone: '065-859-8599',
-          image1: 'assets/clinic-watcharaphon-1.jpg',
-          image2: 'assets/clinic-watcharaphon-2.jpg',
-          image3: 'assets/in-clinic.jpg',
-          mapUrl: 'https://www.google.com/maps/place/DermaPride+Clinics/@13.8792187,100.6415179,17z',
-          mapEmbed: 'https://www.google.com/maps?q=DermaPride+Clinics+Watcharaphon+13.8792187,100.6415179&output=embed'
+          tag:         'Branch 01 · Watcharaphon',
+          name:        'DermaPride · วัชรพล',
+          address:     'ถนนวัชรพล กรุงเทพมหานคร',
+          license:     '12101005467',
+          phone:       '065-859-8599',
+          infoRow1Key: 'Parking',
+          infoRow1Val: 'ฟรี · จอดสะดวก',
+          infoRow2Key: 'Access',
+          infoRow2Val: 'ใกล้ทางด่วน',
+          image1:      'assets/clinic-watcharaphon-1.jpg',
+          image2:      'assets/clinic-watcharaphon-2.jpg',
+          image3:      'assets/in-clinic.jpg',
+          mapUrl:      'https://www.google.com/maps/place/DermaPride+Clinics/@13.8792187,100.6415179,17z',
+          mapEmbed:    'https://www.google.com/maps?q=DermaPride+Clinics+Watcharaphon+13.8792187,100.6415179&output=embed'
         },
         {
-          name: 'DermaPride · ราชพฤกษ์',
-          address: 'อมอร์ วิลเลจ ราชพฤกษ์ นนทบุรี',
-          license: '10101033360',
-          phone: '095-789-8595',
-          image1: 'assets/clinic-ratchapruk-1.jpg',
-          image2: 'assets/clinic-ratchapruk-2.jpg',
-          image3: 'assets/clinic-ratchapruk-3.jpg',
-          mapUrl: 'https://www.google.com/maps/place/DermaPride+Clinics+%E0%B8%AA%E0%B8%B2%E0%B8%82%E0%B8%B2/@13.9226954,100.4487628,17z',
-          mapEmbed: 'https://www.google.com/maps?q=DermaPride+Clinics+Ratchapruek+13.9226954,100.4487628&output=embed'
+          tag:         'Branch 02 · Ratchapruek',
+          name:        'DermaPride · ราชพฤกษ์',
+          address:     'อมอร์ วิลเลจ ราชพฤกษ์ นนทบุรี',
+          license:     '10101033360',
+          phone:       '095-789-8595',
+          infoRow1Key: 'Style',
+          infoRow1Val: 'บูทีค · เงียบสงบ',
+          infoRow2Key: 'Access',
+          infoRow2Val: 'MRT สายสีม่วง',
+          image1:      'assets/clinic-ratchapruk-1.jpg',
+          image2:      'assets/clinic-ratchapruk-2.jpg',
+          image3:      'assets/clinic-ratchapruk-3.jpg',
+          mapUrl:      'https://www.google.com/maps/place/DermaPride+Clinics+%E0%B8%AA%E0%B8%B2%E0%B8%82%E0%B8%B2/@13.9226954,100.4487628,17z',
+          mapEmbed:    'https://www.google.com/maps?q=DermaPride+Clinics+Ratchapruek+13.9226954,100.4487628&output=embed'
         }
       ],
       hours: [
