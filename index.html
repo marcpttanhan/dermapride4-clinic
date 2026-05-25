@@ -1235,14 +1235,22 @@
     // Returns { platform, embedUrl, directUrl }
     function parseEmbed(url) {
       var m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-      if (m) return { platform: 'youtube', useIframe: true, directUrl: url,
+      if (m) return { platform: 'youtube', useIframe: true, useVideo: false, directUrl: url,
         embedUrl: 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0&modestbranding=1' };
       m = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
-      if (m) return { platform: 'tiktok', useIframe: true, directUrl: url,
+      if (m) return { platform: 'tiktok', useIframe: true, useVideo: false, directUrl: url,
         embedUrl: 'https://www.tiktok.com/embed/v2/' + m[1] };
       if (url.indexOf('facebook.com') !== -1 || url.indexOf('fb.watch') !== -1)
-        return { platform: 'facebook', useIframe: false, directUrl: url, embedUrl: null };
-      return { platform: 'other', useIframe: true, embedUrl: url, directUrl: url };
+        return { platform: 'facebook', useIframe: false, useVideo: false, directUrl: url, embedUrl: null };
+      if (url.indexOf('drive.google.com') !== -1) {
+        var gid = null;
+        m = url.match(/\/file\/d\/([^/?#]+)/);
+        if (m) gid = m[1];
+        else { m = url.match(/[?&]id=([^&#]+)/); if (m) gid = m[1]; }
+        if (gid) return { platform: 'gdrive', useIframe: false, useVideo: true,
+          directUrl: 'https://drive.google.com/uc?export=download&id=' + gid, embedUrl: null };
+      }
+      return { platform: 'other', useIframe: true, useVideo: false, embedUrl: url, directUrl: url };
     }
 
     // Show a safe link-card fallback when iframe is unavailable or blocked
@@ -1253,8 +1261,9 @@
         if (u.indexOf('facebook.com') !== -1 || u.indexOf('fb.watch') !== -1) plat = 'facebook';
         else if (u.indexOf('youtube.com') !== -1 || u.indexOf('youtu.be') !== -1) plat = 'youtube';
         else if (u.indexOf('tiktok.com') !== -1) plat = 'tiktok';
+        else if (u.indexOf('drive.google.com') !== -1) plat = 'gdrive';
       }
-      var LABELS = { facebook: 'Watch on Facebook', youtube: 'Watch on YouTube', tiktok: 'Watch on TikTok' };
+      var LABELS = { facebook: 'Watch on Facebook', youtube: 'Watch on YouTube', tiktok: 'Watch on TikTok', gdrive: 'Watch on Google Drive' };
       var btnLabel = LABELS[plat] || 'Watch Video';
       var href = escapeRev(it.fallbackUrl || directUrl || it.videoUrl || '#');
       frame.innerHTML = '<div class="dp-vslider-fallback">'
@@ -1282,16 +1291,33 @@
 
     function mountIframe(slideEl, idx) {
       var frame = slideEl.querySelector('.dp-vslider-frame');
-      if (frame.querySelector('iframe') || frame.querySelector('.dp-vslider-fallback')) return;
+      if (frame.querySelector('iframe') || frame.querySelector('.dp-vslider-fallback') || frame.querySelector('video')) return;
       var it = items[idx];
       if (!it || !it.videoUrl) return;
 
       var parsed = parseEmbed(it.videoUrl);
 
-      // Facebook always shows fallback (iframe embeds are unreliable/blocked by platform)
-      // embedStatus 'link' forces fallback for any platform
-      if (!parsed.useIframe || it.embedStatus === 'link') {
+      // Facebook always shows fallback; embedStatus 'link' forces fallback for any platform
+      if (it.embedStatus === 'link' || (!parsed.useIframe && !parsed.useVideo)) {
         showFallback(frame, it, parsed.directUrl);
+        return;
+      }
+
+      // Google Drive — native HTML5 video (lazy: only active slide loads)
+      if (parsed.useVideo) {
+        var vid = document.createElement('video');
+        vid.controls = true;
+        vid.setAttribute('playsinline', '');
+        vid.preload = 'metadata';
+        var vsrc = document.createElement('source');
+        vsrc.src = parsed.directUrl;
+        vsrc.type = 'video/mp4';
+        vid.appendChild(vsrc);
+        vid.addEventListener('error', function() {
+          if (frame.contains(vid)) { frame.removeChild(vid); showFallback(frame, it, parsed.directUrl); }
+        });
+        frame.innerHTML = '';
+        frame.appendChild(vid);
         return;
       }
 
@@ -1325,7 +1351,9 @@
       var frame = slideEl && slideEl.querySelector('.dp-vslider-frame');
       if (!frame) return;
       if (frame._vsTimer) { clearTimeout(frame._vsTimer); frame._vsTimer = null; }
-      if (!frame.querySelector('iframe') && !frame.querySelector('.dp-vslider-fallback')) return;
+      var vid = frame.querySelector('video');
+      if (vid) { vid.pause(); vid.removeAttribute('src'); try { vid.load(); } catch(e) {} }
+      if (!frame.querySelector('iframe') && !frame.querySelector('.dp-vslider-fallback') && !vid) return;
       frame.innerHTML = '<div class="dp-vslider-placeholder" role="button" tabindex="0" aria-label="เล่นวิดีโอ"><div class="dp-vslider-play-btn">' + PLAY_ICON + '</div></div>';
     }
 
@@ -1352,7 +1380,7 @@
     }, { signal: abortSig });
 
     track.addEventListener('click', function(e) {
-      if (e.target.closest('iframe')) return;
+      if (e.target.closest('iframe') || e.target.closest('video')) return;
       var slide = e.target.closest('.dp-vslider-slide');
       if (!slide) return;
       var idx = allSlides().indexOf(slide);
