@@ -1180,16 +1180,19 @@
   var _vsAbort = null;
 
   function renderVoicesFromCMS() {
-    if (!window.CMS) return;
+    if (!window.CMS) { console.warn('[Voices] CMS not ready'); return; }
     var sec = document.getElementById('voicesVideos');
+    console.log('[Voices DOM]', sec);
     if (!sec) return;
+    console.log('[Voices]', CMS.get('home.voices'));
     var items = (CMS.get('home.voices.videos') || []).filter(function(it) {
       return it.visible !== false && it.videoUrl;
     });
+    console.log('[Voices Render]', items);
     if (!items.length || CMS.get('home.voices.visible') === false) {
       sec.style.display = 'none'; return;
     }
-    sec.style.display = '';
+    sec.style.display = 'block';
     var track  = document.getElementById('vsTrack');
     var dotsEl = document.getElementById('vsDots');
     if (!track) return;
@@ -1213,7 +1216,7 @@
         return '<button class="dp-vslider-dot' + (i === 0 ? ' is-active' : '') + '" aria-label="วิดีโอ ' + (i + 1) + '"></button>';
       }).join('') : '';
     }
-    _initVoicesSlider(items);
+    requestAnimationFrame(function() { _initVoicesSlider(items); });
   }
 
   function _initVoicesSlider(items) {
@@ -1250,6 +1253,8 @@
         if (gid) return { platform: 'gdrive', useIframe: false, useVideo: true,
           directUrl: 'https://drive.google.com/uc?export=download&id=' + gid, embedUrl: null };
       }
+      if (/\.(?:mp4|webm|ogg|mov|m4v|mkv)(?:[?#]|$)/i.test(url))
+        return { platform: 'direct', useIframe: false, useVideo: true, embedUrl: null, directUrl: url };
       return { platform: 'other', useIframe: true, useVideo: false, embedUrl: url, directUrl: url };
     }
 
@@ -1263,7 +1268,7 @@
         else if (u.indexOf('tiktok.com') !== -1) plat = 'tiktok';
         else if (u.indexOf('drive.google.com') !== -1) plat = 'gdrive';
       }
-      var LABELS = { facebook: 'Watch on Facebook', youtube: 'Watch on YouTube', tiktok: 'Watch on TikTok', gdrive: 'Watch on Google Drive' };
+      var LABELS = { facebook: 'Watch on Facebook', youtube: 'Watch on YouTube', tiktok: 'Watch on TikTok', gdrive: 'Watch on Google Drive', direct: 'Watch Video' };
       var btnLabel = LABELS[plat] || 'Watch Video';
       var href = escapeRev(it.fallbackUrl || directUrl || it.videoUrl || '#');
       frame.innerHTML = '<div class="dp-vslider-fallback">'
