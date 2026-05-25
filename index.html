@@ -1186,7 +1186,7 @@
     if (!sec) return;
     console.log('[Voices]', CMS.get('home.voices'));
     var items = (CMS.get('home.voices.videos') || []).filter(function(it) {
-      return it.visible !== false && it.videoUrl;
+      return it.visible !== false && (it.videoUrl || it.url);
     });
     console.log('[Voices Render]', items);
     if (!items.length || CMS.get('home.voices.visible') === false) {
@@ -1197,19 +1197,49 @@
     var dotsEl = document.getElementById('vsDots');
     if (!track) return;
 
-    var PLAY_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M5 3l14 9-14 9V3z"/></svg>';
-    track.innerHTML = items.map(function(it, i) {
-      return '<div class="dp-vslider-slide' + (i === 0 ? ' is-active' : '') + '">'
-        + '<div class="dp-vslider-frame">'
-        +   '<div class="dp-vslider-placeholder" role="button" tabindex="0" aria-label="เล่นวิดีโอ">'
-        +     '<div class="dp-vslider-play-btn">' + PLAY_ICON + '</div>'
-        +   '</div>'
-        + '</div>'
-        + '<div class="dp-vslider-meta">'
-        + (it.title ? '<div class="dp-vslider-title">' + escapeRev(it.title) + '</div>' : '')
-        + (it.name  ? '<div class="dp-vslider-name">'  + escapeRev(it.name)  + '</div>' : '')
-        + '</div></div>';
-    }).join('');
+    track.innerHTML = '';
+    items.forEach(function(it, i) {
+      var url = it.videoUrl || it.url || it.src || '';
+      console.log('[VIDEO RENDER]', url, it);
+
+      var slide = document.createElement('div');
+      slide.className = 'dp-vslider-slide' + (i === 0 ? ' is-active' : '');
+
+      var frame = document.createElement('div');
+      frame.className = 'dp-vslider-frame';
+
+      var vid = document.createElement('video');
+      if (url) {
+        vid.src = url;
+      } else {
+        console.error('[Voices] missing video URL', it);
+      }
+      vid.controls = true;
+      vid.setAttribute('playsinline', '');
+      vid.preload = 'metadata';
+      vid.style.cssText = 'width:100%;height:100%;display:block;';
+      frame.appendChild(vid);
+
+      var meta = document.createElement('div');
+      meta.className = 'dp-vslider-meta';
+      if (it.title) {
+        var titleEl = document.createElement('div');
+        titleEl.className = 'dp-vslider-title';
+        titleEl.textContent = it.title;
+        meta.appendChild(titleEl);
+      }
+      if (it.name) {
+        var nameEl = document.createElement('div');
+        nameEl.className = 'dp-vslider-name';
+        nameEl.textContent = it.name;
+        meta.appendChild(nameEl);
+      }
+
+      slide.appendChild(frame);
+      slide.appendChild(meta);
+      track.appendChild(slide);
+    });
+    console.log('[Voices] slides:', track.children.length);
 
     if (dotsEl) {
       dotsEl.innerHTML = items.length > 1 ? items.map(function(_, i) {
@@ -1221,11 +1251,12 @@
 
   function _initVoicesSlider(items) {
     var slider  = document.getElementById('vsSlider');
-    var track   = document.getElementById('vsTrack');
+    var track   = document.querySelector('.dp-vslider-track');
     var prevBtn = document.getElementById('vsPrev');
     var nextBtn = document.getElementById('vsNext');
     var dotsEl  = document.getElementById('vsDots');
-    if (!slider || !track) return;
+    if (!track) { console.error('[Voices] track element missing'); return; }
+    if (!slider) { console.error('[Voices] slider element missing'); return; }
 
     if (_vsAbort) _vsAbort.abort();
     _vsAbort = new AbortController();
@@ -1298,9 +1329,10 @@
       var frame = slideEl.querySelector('.dp-vslider-frame');
       if (frame.querySelector('iframe') || frame.querySelector('.dp-vslider-fallback') || frame.querySelector('video')) return;
       var it = items[idx];
-      if (!it || !it.videoUrl) return;
+      var videoUrl = it && (it.videoUrl || it.url);
+      if (!it || !videoUrl) return;
 
-      var parsed = parseEmbed(it.videoUrl);
+      var parsed = parseEmbed(videoUrl);
 
       // Facebook always shows fallback; embedStatus 'link' forces fallback for any platform
       if (it.embedStatus === 'link' || (!parsed.useIframe && !parsed.useVideo)) {
