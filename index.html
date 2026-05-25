@@ -1235,15 +1235,14 @@
     // Returns { platform, embedUrl, directUrl }
     function parseEmbed(url) {
       var m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-      if (m) return { platform: 'youtube',  directUrl: url,
+      if (m) return { platform: 'youtube', useIframe: true, directUrl: url,
         embedUrl: 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0&modestbranding=1' };
       m = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
-      if (m) return { platform: 'tiktok',   directUrl: url,
+      if (m) return { platform: 'tiktok', useIframe: true, directUrl: url,
         embedUrl: 'https://www.tiktok.com/embed/v2/' + m[1] };
       if (url.indexOf('facebook.com') !== -1 || url.indexOf('fb.watch') !== -1)
-        return { platform: 'facebook', directUrl: url,
-          embedUrl: 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(url) + '&show_text=false&width=640&allowfullscreen=true' };
-      return { platform: 'other', embedUrl: url, directUrl: url };
+        return { platform: 'facebook', useIframe: false, directUrl: url, embedUrl: null };
+      return { platform: 'other', useIframe: true, embedUrl: url, directUrl: url };
     }
 
     // Show a safe link-card fallback when iframe is unavailable or blocked
@@ -1289,12 +1288,9 @@
 
       var parsed = parseEmbed(it.videoUrl);
 
-      // embedStatus 'link' → always show fallback card, no iframe attempt
-      // Facebook + embedStatus 'auto' (default) → always show fallback (embed is unreliable)
-      // embedStatus 'embed' → force iframe even for Facebook (admin override)
-      var forceLink  = it.embedStatus === 'link';
-      var forceFb    = parsed.platform === 'facebook' && it.embedStatus !== 'embed';
-      if (forceLink || forceFb) {
+      // Facebook always shows fallback (iframe embeds are unreliable/blocked by platform)
+      // embedStatus 'link' forces fallback for any platform
+      if (!parsed.useIframe || it.embedStatus === 'link') {
         showFallback(frame, it, parsed.directUrl);
         return;
       }
