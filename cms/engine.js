@@ -308,7 +308,7 @@
       doctorGallery: {
         visible: true,
         title: 'Artistry · in Practice',
-        sub: 'บรรยากาศ · ปรัชญา · อัตลักษณ์',
+        sub: 'ปรัชญาของคุณหมอหญิง',
         autoplay: true,
         items: [
           { id: 'dg_1', image: 'assets/doctor.jpg',                  caption: 'ความซื่อตรงคือรากฐาน',          quote: '', alt: 'Dr. Arpa at work',      visible: true },

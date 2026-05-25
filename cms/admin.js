@@ -788,7 +788,7 @@
         <hr style="border:none; border-top:1px solid var(--c-bdr); margin: 0 0 14px;" />
         <div class="cms-row">
           ${txt('Gallery Title', 'home.doctorGallery.title', { ph: 'Artistry · in Practice' })}
-          ${txt('Gallery Subtitle', 'home.doctorGallery.sub', { ph: 'บรรยากาศ · ปรัชญา · อัตลักษณ์' })}
+          ${txt('Gallery Subtitle', 'home.doctorGallery.sub', { ph: 'ปรัชญาของคุณหมอหญิง' })}
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin: 14px 0 10px;">
           <h3 style="margin:0; font-size:14px;">ภาพ ${(CMS.getDraft('home.doctorGallery.items')||[]).length} รูป</h3>
