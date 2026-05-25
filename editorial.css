@@ -1304,24 +1304,6 @@
 .dpe-floating .ln { background: #06C755; }
 .dpe-floating .ph { background: var(--cine-ink); }
 
-.dpe-floating-left { position: fixed; left: 22px; bottom: 22px; z-index: 90; display: flex; flex-direction: row; gap: 10px; }
-.dpe-floating-left a {
-  width: 48px; height: 48px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: white; box-shadow: 0 16px 36px -14px rgba(0,0,0,0.45);
-  transition: transform 220ms var(--dp-ease); text-decoration: none;
-}
-.dpe-floating-left a:hover { transform: scale(1.08); }
-.dpe-floating-left a svg { width: 24px; height: 24px; }
-.dpe-floating-left .tt { background: #010101; }
-.dpe-floating-left .ln { background: #06C755; }
-.dpe-floating-left .yt { background: #FF0000; }
-
-@media (max-width: 600px) {
-  .dpe-floating-left { left: 12px; bottom: 14px; gap: 8px; }
-  .dpe-floating-left a { width: 42px; height: 42px; }
-  .dpe-floating-left a svg { width: 20px; height: 20px; }
-}
 
 /* ============================================================
    ADMIN PANEL (reused tokens from styles.css)
