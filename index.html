@@ -1459,7 +1459,89 @@
   }
   // ────────────────────────────────────────────────────────────────
 
-  function renderCMSBlocks() { renderHeroFromCMS(); renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); renderDoctorGalleryFromCMS(); renderResultsFromCMS(); renderVoicesFromCMS(); }
+  var _branchRenderTimer = null;
+  function renderBranchesFromCMS(source) {
+    source = source || 'direct';
+    console.log('[Branches Render Trigger]', source);
+
+    // Draft-only change (CMS.set before publish) — published state unchanged, skip to avoid overwrite
+    if (source === 'subscribe' && window.CMS && typeof CMS.hasDraftChanges === 'function' && CMS.hasDraftChanges()) {
+      return;
+    }
+
+    // Debounce: collapse multiple same-tick notifications into one DOM write
+    if (_branchRenderTimer) clearTimeout(_branchRenderTimer);
+    _branchRenderTimer = setTimeout(function() {
+      _branchRenderTimer = null;
+      _doRenderBranches();
+    }, 0);
+  }
+  function _doRenderBranches() {
+    if (!window.CMS) return;
+    var branches = CMS.get('home.branches');
+    console.log('[Branches Render]', branches);
+    if (!branches || !branches.length) return;
+
+    var grid = document.querySelector('#branches .dpe-branches-grid');
+    if (!grid) return;
+
+    // Static display data not stored in CMS (branch label, non-managed info rows)
+    var BRANCH_STATIC = [
+      { tag: 'Branch 01 · Watcharaphon', extra: [{ k: 'Parking', v: 'ฟรี · จอดสะดวก' }, { k: 'Access', v: 'ใกล้ทางด่วน' }] },
+      { tag: 'Branch 02 · Ratchapruek',  extra: [{ k: 'Style',   v: 'บูทีค · เงียบสงบ' }, { k: 'Access', v: 'MRT สายสีม่วง' }] }
+    ];
+    var ARROW_SVG = '<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>';
+
+    // Full rebuild — clears stale DOM before writing fresh CMS data
+    grid.innerHTML = '';
+    branches.forEach(function(b, i) {
+      var st = BRANCH_STATIC[i] || { tag: 'Branch ' + (i + 1), extra: [] };
+      var nameParts = String(b.name || '').split(' · ');
+      var nameHtml = nameParts.length >= 2
+        ? escapeRev(nameParts[0]) + ' · <em>' + escapeRev(nameParts.slice(1).join(' · ')) + '</em>'
+        : escapeRev(b.name || '');
+      var extraRows = st.extra.map(function(r) {
+        return '<div><div class="k">' + escapeRev(r.k) + '</div><div class="v">' + escapeRev(r.v) + '</div></div>';
+      }).join('');
+
+      var art = document.createElement('article');
+      art.className = 'dpe-branch';
+      art.setAttribute('data-veil', '');
+      if (i > 0) art.setAttribute('data-veil-delay', String(i));
+
+      art.innerHTML =
+        '<div class="dpe-branch-hero">' +
+          '<div><img src="' + escapeRev(b.image1 || '') + '" alt="" data-cms-src="home.branches.' + i + '.image1" /></div>' +
+          '<div class="stack">' +
+            '<div><img src="' + escapeRev(b.image2 || '') + '" alt="" data-cms-src="home.branches.' + i + '.image2" /></div>' +
+            '<div><img src="' + escapeRev(b.image3 || '') + '" alt="" data-cms-src="home.branches.' + i + '.image3" /></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="dpe-branch-body">' +
+          '<div class="dpe-branch-tag">' + escapeRev(st.tag) + '</div>' +
+          '<h3>' + nameHtml + '</h3>' +
+          '<div class="th">' + escapeRev(b.address || '') + '</div>' +
+          '<div class="dpe-branch-info">' +
+            '<div><div class="k">License</div><div class="v">' + escapeRev(b.license || '') + '</div></div>' +
+            '<div><div class="k">Phone</div><div class="v">' + escapeRev(b.phone || '') + '</div></div>' +
+            extraRows +
+          '</div>' +
+        '</div>' +
+        '<div class="dpe-branch-map">' +
+          '<iframe src="' + escapeRev(b.mapEmbed || '') + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>' +
+        '</div>' +
+        '<div class="dpe-branch-actions">' +
+          '<a class="dpe-btn-cinema" style="background: var(--cine-ink); color: var(--cine-paper); padding: 12px 20px; font-size: 13px;" href="' + escapeRev(b.mapUrl || '#') + '" target="_blank" rel="noopener">' +
+            'เปิดใน Google Maps ' + ARROW_SVG +
+          '</a>' +
+          '<a class="dpe-btn-ghost-dark" style="color: var(--cine-ink); border-color: var(--cine-rule); padding: 12px 18px; font-size: 13px;" href="tel:' + String(b.phone || '').replace(/[^0-9]/g, '') + '">โทรสาขา</a>' +
+        '</div>';
+
+      grid.appendChild(art);
+    });
+  }
+
+  function renderCMSBlocks(source) { renderHeroFromCMS(); renderHoursFromCMS(); renderReviewsFromCMS(); renderTreatmentsFromCMS(); renderPhilosophyFromCMS(); renderFAQFromCMS(); renderOffersFromCMS(); renderDoctorGalleryFromCMS(); renderResultsFromCMS(); renderVoicesFromCMS(); renderBranchesFromCMS(source || 'direct'); }
 
   // Treatments / Procedure category grid — pulled from CMS
   function renderTreatmentsFromCMS() {
@@ -1506,8 +1588,8 @@
   // Wait for CMS engine to be ready, then render + subscribe
   function bootCMSBlocks() {
     if (!window.CMS) return setTimeout(bootCMSBlocks, 50);
-    renderCMSBlocks();
-    CMS.subscribe(renderCMSBlocks);
+    renderCMSBlocks('init');
+    CMS.subscribe(function() { renderCMSBlocks('subscribe'); });
   }
   bootCMSBlocks();
 
@@ -1533,6 +1615,7 @@
   });
 
   window.renderVoicesFromCMS = renderVoicesFromCMS;
+  window.renderBranchesFromCMS = renderBranchesFromCMS;
 })();
 </script>
 
