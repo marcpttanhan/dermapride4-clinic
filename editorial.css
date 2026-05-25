@@ -1728,6 +1728,15 @@
 }
 
 .dp-vslider-head { text-align: center; margin-bottom: 52px; }
+.dp-vslider-consent {
+  font-family: var(--dp-sans);
+  font-size: 12px;
+  letter-spacing: 0.035em;
+  line-height: 1.5;
+  color: var(--cine-ink);
+  opacity: 0.42;
+  margin-top: 14px;
+}
 
 .dp-vslider-stage { position: relative; }
 
