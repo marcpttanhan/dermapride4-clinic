@@ -718,7 +718,7 @@
     function scrollPage(dir) {
       const card = track.querySelector('.dpe-results-gallery__card');
       if (!card) return;
-      track.scrollBy({ left: dir * (card.offsetWidth + 16) * 2, behavior: 'smooth' });
+      track.scrollBy({ left: dir * (card.offsetWidth + 16), behavior: 'smooth' });
     }
     prev.addEventListener('click', () => scrollPage(-1));
     next.addEventListener('click', () => scrollPage(1));

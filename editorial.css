@@ -950,7 +950,8 @@
   display: flex;
   gap: 16px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x mandatory !important;
+  scroll-behavior: smooth !important;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding-bottom: 4px;
@@ -958,8 +959,8 @@
 .dpe-results-gallery__track::-webkit-scrollbar { display: none; }
 
 .dpe-results-gallery__card {
-  flex: 0 0 calc(50% - 8px);
-  scroll-snap-align: start;
+  flex: 0 0 100%;
+  scroll-snap-align: center;
   scroll-snap-stop: always;
   border-radius: 4px;
   overflow: hidden;
