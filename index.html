@@ -270,58 +270,23 @@
       </p>
     </div>
 
-    <div class="dpe-results-stage" data-veil data-veil-delay="2">
-      <div class="dpe-results-image">
-        <img id="resImg" src="assets/ba-3.jpg" alt="Before and after" />
-      </div>
-
-      <aside class="dpe-results-meta">
-        <div class="case" id="resCase">CASE · 0001</div>
-        <h4 id="resTitle">โปรแกรมฟิลเลอร์ใต้ตา</h4>
-        <p id="resSummary">
-          แก้ปัญหาใต้ตาคล้ำดูสดใส — เพิ่มมิติให้กระบอกตา ลดร่องลึกใต้ตา
-          ด้วยฟิลเลอร์ Hyaluronic acid ของแท้จาก Galderma เทคนิคหยอดเฉพาะจุด
-        </p>
-        <div class="facts">
-          <div><div class="k">หัตถการ</div><div class="v" id="resTreat">ฟิลเลอร์ใต้ตา</div></div>
-          <div><div class="k">ปริมาณ</div><div class="v" id="resAmount">1 cc</div></div>
-          <div><div class="k">ผู้ดูแล</div><div class="v">พญ.อาภา สังขนุกิจ</div></div>
-          <div><div class="k">ผลลัพธ์</div><div class="v" id="resResult">เห็นผลทันที</div></div>
+    <div class="dpe-results-gallery" data-veil data-veil-delay="2">
+      <div class="dpe-results-gallery__wrap">
+        <button class="dpe-results-gallery__arrow dpe-results-gallery__arrow--prev" id="resGallPrev" aria-label="Previous">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="dpe-results-gallery__track" id="resGallTrack">
+          <div class="dpe-results-gallery__card"><img src="assets/ba-3.jpg" alt="" /></div>
+          <div class="dpe-results-gallery__card"><img src="assets/ba-1.jpg" alt="" /></div>
+          <div class="dpe-results-gallery__card"><img src="assets/ba-2.jpg" alt="" /></div>
+          <div class="dpe-results-gallery__card"><img src="assets/ba-5.jpg" alt="" /></div>
+          <div class="dpe-results-gallery__card"><img src="assets/ba-7.jpg" alt="" /></div>
+          <div class="dpe-results-gallery__card"><img src="assets/ba-10.jpg" alt="" /></div>
         </div>
-      </aside>
-    </div>
-
-    <div class="dpe-results-thumbs" id="resThumbs" data-veil data-veil-delay="3">
-      <button class="dpe-results-thumb is-active"
-              data-src="assets/ba-3.jpg"
-              data-title="โปรแกรมฟิลเลอร์ใต้ตา"
-              data-summary="แก้ปัญหาใต้ตาคล้ำดูสดใส เพิ่มมิติให้กระบอกตา ลดร่องลึกใต้ตา ด้วยฟิลเลอร์ Hyaluronic acid ของแท้จาก Galderma"
-              data-treat="ฟิลเลอร์ใต้ตา" data-amount="1 cc" data-result="เห็นผลทันที"><img src="assets/ba-3.jpg" alt="" /></button>
-      <button class="dpe-results-thumb"
-              data-src="assets/ba-1.jpg"
-              data-title="Restylane Full Face"
-              data-summary="ฟิลเลอร์ Restylane เติมเต็มได้ตรงจุด เพิ่มมิติให้ใบหน้า ทำให้ใบหน้าดูมีมุมมากขึ้น ใบหน้าดูเต็มขึ้น"
-              data-treat="Restylane Filler" data-amount="2 cc" data-result="เห็นผลทันที"><img src="assets/ba-1.jpg" alt="" /></button>
-      <button class="dpe-results-thumb"
-              data-src="assets/ba-2.jpg"
-              data-title="ใต้ตาดำ → กระจ่างใส"
-              data-summary="เปลี่ยนใต้ตาดำคล้ำให้กระจ่างใสขึ้น ลดถุงใต้ตาที่ทำให้ดูบวม จากใบหน้าที่ดูโทรม ให้ดูสดใสมากขึ้น"
-              data-treat="ฟิลเลอร์ใต้ตา + Skin Booster" data-amount="3 cc" data-result="2 สัปดาห์"><img src="assets/ba-2.jpg" alt="" /></button>
-      <button class="dpe-results-thumb"
-              data-src="assets/ba-5.jpg"
-              data-title="Babilone Neo One"
-              data-summary="สลายไขมัน พร้อมยกกระชับแบบขั้นสุด เห็นผลคูณ 2 — แก้มยุบ ยกกระชับ ไม่มีย้อย"
-              data-treat="Babilone Neo One" data-amount="—" data-result="4–6 สัปดาห์"><img src="assets/ba-5.jpg" alt="" /></button>
-      <button class="dpe-results-thumb"
-              data-src="assets/ba-7.jpg"
-              data-title="ใต้ตา & ร่องแก้ม"
-              data-summary="โปรแกรมฟิลเลอร์ใต้ตา ร่องแก้ม — แก้ปัญหาใต้ตาดำคล้ำ ร่องแก้มตื้นขึ้น ใบหน้าดูอ่อนเยาว์ลง"
-              data-treat="ฟิลเลอร์ใต้ตา + ร่องแก้ม" data-amount="3 cc" data-result="เห็นผลทันที"><img src="assets/ba-7.jpg" alt="" /></button>
-      <button class="dpe-results-thumb"
-              data-src="assets/ba-10.jpg"
-              data-title="Meso Reverse Aging"
-              data-summary="ย้อนวัย พร้อมสร้างผิวกระจก — ฟื้นฟูผิวที่ดูโทรมให้กระจ่างใส มีออร่า ลดเลือนรอยหมองคล้ำ"
-              data-treat="Meso Reverse" data-amount="—" data-result="3 ครั้ง"><img src="assets/ba-10.jpg" alt="" /></button>
+        <button class="dpe-results-gallery__arrow dpe-results-gallery__arrow--next" id="resGallNext" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -717,10 +682,10 @@
   }, {rootMargin: '0px 0px -8% 0px', threshold: 0.02});
 
   // Auto-tag content elements
-  const sels = ['.dpe-treatment','.dpe-offer','.dpe-pillar-row','.dpe-faq-item','.dpe-results-thumb','.dpe-hour-row','.dpe-voice','.dpe-branch','.dpe-chapter img','.dpe-results-image','.dpe-doctor-portrait','.dpe-film-video','.dpe-treatments-grid > *'];
+  const sels = ['.dpe-treatment','.dpe-offer','.dpe-pillar-row','.dpe-faq-item','.dpe-results-gallery__card','.dpe-hour-row','.dpe-voice','.dpe-branch','.dpe-chapter img','.dpe-doctor-portrait','.dpe-film-video','.dpe-treatments-grid > *'];
   document.querySelectorAll(sels.join(',')).forEach(el => {
     if (el.hasAttribute('data-veil') || el.hasAttribute('data-veil-img')) return;
-    if (el.tagName === 'IMG' || el.classList.contains('dpe-results-image') || el.classList.contains('dpe-doctor-portrait') || el.classList.contains('dpe-film-video')) {
+    if (el.tagName === 'IMG' || el.classList.contains('dpe-doctor-portrait') || el.classList.contains('dpe-film-video')) {
       el.setAttribute('data-veil-img', '');
     } else {
       el.setAttribute('data-veil', '');
@@ -744,33 +709,20 @@
   // Highlight today's row — handled in renderHoursFromCMS now
   const _todaySkip = true;
 
-  // Results thumbs
-  const thumbs = document.querySelectorAll('.dpe-results-thumb');
-  const img = document.getElementById('resImg');
-  const title = document.getElementById('resTitle');
-  const sum = document.getElementById('resSummary');
-  const treat = document.getElementById('resTreat');
-  const amount = document.getElementById('resAmount');
-  const result = document.getElementById('resResult');
-  const caseLabel = document.getElementById('resCase');
-  thumbs.forEach((t, idx) => {
-    t.addEventListener('click', () => {
-      thumbs.forEach(o => o.classList.remove('is-active'));
-      t.classList.add('is-active');
-      img.style.opacity = '0';
-      setTimeout(() => {
-        img.src = t.dataset.src;
-        title.textContent = t.dataset.title;
-        sum.textContent = t.dataset.summary;
-        treat.textContent = t.dataset.treat;
-        amount.textContent = t.dataset.amount;
-        result.textContent = t.dataset.result;
-        caseLabel.textContent = `CASE · ${String(idx + 1).padStart(4, '0')}`;
-        img.style.opacity = '1';
-      }, 200);
-    });
-  });
-  if (img) img.style.transition = 'opacity 240ms ease';
+  // Results gallery arrows
+  (function() {
+    const track = document.getElementById('resGallTrack');
+    const prev  = document.getElementById('resGallPrev');
+    const next  = document.getElementById('resGallNext');
+    if (!track || !prev || !next) return;
+    function scrollPage(dir) {
+      const card = track.querySelector('.dpe-results-gallery__card');
+      if (!card) return;
+      track.scrollBy({ left: dir * (card.offsetWidth + 16) * 3, behavior: 'smooth' });
+    }
+    prev.addEventListener('click', () => scrollPage(-1));
+    next.addEventListener('click', () => scrollPage(1));
+  })();
 
   // Booking form
   const form = document.getElementById('bookForm');
@@ -1056,59 +1008,15 @@
 
   function renderResultsFromCMS() {
     if (!window.CMS) return;
-    const host = document.getElementById('resThumbs');
-    const mainImg = document.getElementById('resImg');
-    if (!host || !mainImg) return;
+    const track = document.getElementById('resGallTrack');
+    if (!track) return;
+    // Read from published — the globally committed state, not per-device draft
     const items = (CMS.get('home.results.items') || []).filter(it => it.visible !== false);
     if (!items.length) return;
-
-    host.innerHTML = items.map((it, idx) => {
-      const src   = escapeRev(it.image || '');
-      const title = escapeRev(it.title || '');
-      const sum   = escapeRev(it.summary || '');
-      const tr    = escapeRev(it.treatment || '');
-      const am    = escapeRev(it.amount || '');
-      const rt    = escapeRev(it.resultTime || '');
-      return `<button class="dpe-results-thumb${idx === 0 ? ' is-active' : ''}"
-        data-src="${src}" data-title="${title}" data-summary="${sum}"
-        data-treat="${tr}" data-amount="${am}" data-result="${rt}">
-        ${src ? `<img src="${src}" alt="" />` : ''}
-      </button>`;
+    track.innerHTML = items.map(it => {
+      const src = escapeRev(it.image || '');
+      return `<div class="dpe-results-gallery__card">${src ? `<img src="${src}" alt="" loading="lazy" />` : ''}</div>`;
     }).join('');
-
-    const first = items[0];
-    mainImg.src = first.image || '';
-    const titleEl  = document.getElementById('resTitle');
-    const sumEl    = document.getElementById('resSummary');
-    const treatEl  = document.getElementById('resTreat');
-    const amountEl = document.getElementById('resAmount');
-    const resultEl = document.getElementById('resResult');
-    const caseEl   = document.getElementById('resCase');
-    if (titleEl)  titleEl.textContent  = first.title || '';
-    if (sumEl)    sumEl.textContent    = first.summary || '';
-    if (treatEl)  treatEl.textContent  = first.treatment || '';
-    if (amountEl) amountEl.textContent = first.amount || '';
-    if (resultEl) resultEl.textContent = first.resultTime || '';
-    if (caseEl)   caseEl.textContent   = 'CASE · 0001';
-
-    const newThumbs = host.querySelectorAll('.dpe-results-thumb');
-    newThumbs.forEach((t, idx) => {
-      t.addEventListener('click', () => {
-        newThumbs.forEach(o => o.classList.remove('is-active'));
-        t.classList.add('is-active');
-        mainImg.style.opacity = '0';
-        setTimeout(() => {
-          mainImg.src = t.dataset.src;
-          if (titleEl)  titleEl.textContent  = t.dataset.title;
-          if (sumEl)    sumEl.textContent    = t.dataset.summary;
-          if (treatEl)  treatEl.textContent  = t.dataset.treat;
-          if (amountEl) amountEl.textContent = t.dataset.amount;
-          if (resultEl) resultEl.textContent = t.dataset.result;
-          if (caseEl)   caseEl.textContent   = `CASE · ${String(idx + 1).padStart(4, '0')}`;
-          mainImg.style.opacity = '1';
-        }, 200);
-      });
-    });
   }
 
   // ── Video Voices Slider ─────────────────────────────────────────

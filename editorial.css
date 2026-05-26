@@ -942,6 +942,64 @@
   .dpe-results-thumbs { grid-template-columns: repeat(4, 1fr); }
 }
 
+/* ── Chapter 08 · Results photo gallery ── */
+.dpe-results-gallery { margin-top: 48px; }
+.dpe-results-gallery__wrap { position: relative; }
+
+.dpe-results-gallery__track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.dpe-results-gallery__track::-webkit-scrollbar { display: none; }
+
+.dpe-results-gallery__card {
+  flex: 0 0 calc(33.333% - 11px);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  border-radius: 4px;
+  overflow: hidden;
+  aspect-ratio: 2 / 3;
+  background: var(--cine-paper);
+  box-shadow: 0 20px 50px -20px rgba(20,36,42,0.18);
+}
+.dpe-results-gallery__card img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.dpe-results-gallery__card:hover img { transform: scale(1.04); }
+
+.dpe-results-gallery__arrow {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid rgba(20,36,42,0.14);
+  background: rgba(250,247,242,0.92);
+  backdrop-filter: blur(8px);
+  color: var(--cine-ink);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 2;
+  transition: background 200ms ease, opacity 200ms ease;
+}
+.dpe-results-gallery__arrow:hover { background: #fff; }
+.dpe-results-gallery__arrow svg { width: 18px; height: 18px; }
+.dpe-results-gallery__arrow--prev { left: -22px; }
+.dpe-results-gallery__arrow--next { right: -22px; }
+
+@media (max-width: 900px) {
+  .dpe-results-gallery__card { flex: 0 0 calc(50% - 8px); }
+  .dpe-results-gallery__arrow { display: none; }
+}
+@media (max-width: 600px) {
+  .dpe-results-gallery__card { flex: 0 0 80%; }
+  .dpe-results-gallery { margin-top: 32px; }
+}
+
 /* ============================================================
    IMPRESSIONS (testimonials with video bg)
 ============================================================ */
