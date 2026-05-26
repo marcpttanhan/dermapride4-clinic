@@ -1496,7 +1496,14 @@
     if (!window.CMS) return;
     const grid = document.getElementById('treatmentsGrid');
     if (!grid) return;
-    const items = CMS.procedures.listVisible ? CMS.procedures.listVisible() : CMS.procedures.list();
+    // Read from published — the globally committed database state, not the per-device draft.
+    // draft can differ per device (admin local edits); published is what all visitors see.
+    const procMap = (CMS.get && CMS.get('procedures')) || {};
+    const items = Object.keys(procMap)
+      .filter(k => procMap[k] && typeof procMap[k] === 'object' && procMap[k].name)
+      .map(slug => ({ slug, ...procMap[slug] }))
+      .filter(p => p.visible !== false)
+      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
     if (!items.length) { grid.innerHTML = ''; return; }
 
     // Dynamic span pattern based on count for an editorial feel:
