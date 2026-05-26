@@ -390,7 +390,8 @@
   const root = document.getElementById('procRoot');
 
   function render() {
-    const proc = CMS.procedures.get(slug);
+    // Read from published — the globally committed database state, not the per-device draft.
+    const proc = (CMS.get('procedures') || {})[slug];
     if (!proc) {
       root.innerHTML = `<section class="proc-empty"><h3>ไม่พบหน้านี้</h3><p>หมวด "${slug}" ไม่ได้ถูกตั้งค่าไว้</p><a class="dpe-btn-cinema" href="DermaPride Clinics.html" style="background: #14242A; color: #FAF7F2;">กลับหน้าหลัก</a></section>`;
       return;
@@ -535,7 +536,7 @@
     }
 
     if (sec.type === 'reviews') {
-      const items = CMS.reviews.list().slice(0, 6);
+      const items = ((CMS.get('reviews') || {}).items || []).slice(0, 6);
       const grid = items.length ? items.map(r => `
         <article class="proc-rev">
           <div class="stars">${'★'.repeat(r.stars || 5)}</div>
