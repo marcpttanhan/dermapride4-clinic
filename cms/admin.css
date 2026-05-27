@@ -424,7 +424,7 @@
 /* ---------- Hours editor ---------- */
 .cms-hours-grid {
   display: grid;
-  grid-template-columns: 1.3fr 1.3fr 1fr 1fr 80px;
+  grid-template-columns: 1.3fr 1.3fr 1fr 1fr 70px 90px 70px;
   gap: 10px;
   align-items: center;
   padding: 8px 4px;

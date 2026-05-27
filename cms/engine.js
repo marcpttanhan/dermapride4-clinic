@@ -364,13 +364,13 @@
         }
       ],
       hours: [
-        { day: 'Monday',    th: 'วันจันทร์',    open: '',      close: '',      closed: true },
-        { day: 'Tuesday',   th: 'วันอังคาร',    open: '',      close: '',      closed: true },
-        { day: 'Wednesday', th: 'วันพุธ',       open: '10:00', close: '19:00', closed: false },
-        { day: 'Thursday',  th: 'วันพฤหัสบดี',  open: '',      close: '',      closed: true },
-        { day: 'Friday',    th: 'วันศุกร์',     open: '10:00', close: '19:00', closed: false },
-        { day: 'Saturday',  th: 'วันเสาร์',     open: '10:00', close: '14:00', closed: false },
-        { day: 'Sunday',    th: 'วันอาทิตย์',   open: '10:00', close: '14:00', closed: false }
+        { day: 'Monday',    th: 'วันจันทร์',    open: '',      close: '',      closed: true,  branchV: false, branchR: false },
+        { day: 'Tuesday',   th: 'วันอังคาร',    open: '',      close: '',      closed: true,  branchV: false, branchR: false },
+        { day: 'Wednesday', th: 'วันพุธ',       open: '10:00', close: '19:00', closed: false, branchV: true,  branchR: true  },
+        { day: 'Thursday',  th: 'วันพฤหัสบดี',  open: '',      close: '',      closed: true,  branchV: false, branchR: false },
+        { day: 'Friday',    th: 'วันศุกร์',     open: '10:00', close: '19:00', closed: false, branchV: true,  branchR: true  },
+        { day: 'Saturday',  th: 'วันเสาร์',     open: '10:00', close: '14:00', closed: false, branchV: true,  branchR: true  },
+        { day: 'Sunday',    th: 'วันอาทิตย์',   open: '10:00', close: '14:00', closed: false, branchV: true,  branchR: true  }
       ],
       philosophy: {
         kicker: 'มาตรฐาน 4 แท้',

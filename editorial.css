@@ -1303,6 +1303,9 @@
 .dpe-hour-row .time { font-family: var(--dp-mono); font-size: 14px; letter-spacing: 0.05em; opacity: 0.86; }
 .dpe-hour-row.is-closed .time { opacity: 0.35; }
 .dpe-hour-row .pill { font-family: var(--dp-mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; padding: 4px 10px; border-radius: var(--dp-r-pill); background: var(--dp-teal-700); color: white; }
+.dpe-hour-row .row-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.dpe-hour-row .branch-tag { font-family: var(--dp-sans); font-size: 11px; letter-spacing: 0.02em; padding: 3px 9px; border-radius: var(--dp-r-pill); border: 1px solid rgba(255,255,255,0.22); color: rgba(255,255,255,0.55); white-space: nowrap; }
+.dpe-hour-row.is-today .branch-tag { border-color: rgba(26,150,143,0.45); color: rgba(26,150,143,0.85); }
 
 @media (max-width: 900px) { .dpe-hours-grid { grid-template-columns: 1fr; } }
 

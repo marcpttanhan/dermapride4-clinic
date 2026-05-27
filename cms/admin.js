@@ -1297,13 +1297,15 @@
     pane.className = 'cms-pane';
     pane.innerHTML = `
       <h2>Opening <em>Hours</em></h2>
-      <p class="lead">ตารางเปิดบริการ — ติ๊กปิดในวันหยุด หรือใส่เวลาเปิด/ปิด</p>
+      <p class="lead">ตารางเปิดบริการ — ติ๊กปิดในวันหยุด หรือใส่เวลาเปิด/ปิด และเลือกสาขาที่เปิดให้บริการ</p>
       <div class="cms-card">
         <div class="cms-hours-grid">
           <div class="head">วัน</div>
           <div class="head">ภาษาไทย</div>
           <div class="head">เปิด</div>
           <div class="head">ปิด</div>
+          <div class="head">วัชรพล</div>
+          <div class="head">ราชพฤกษ์</div>
           <div class="head">หยุด</div>
         </div>
         <div id="hL"></div>
@@ -1313,6 +1315,8 @@
     const list = pane.querySelector('#hL');
     const hours = CMS.getDraft('home.hours') || [];
     hours.forEach((h, i) => {
+      const bV = h.branchV !== false;
+      const bR = h.branchR !== false;
       const row = document.createElement('div');
       row.className = 'cms-hours-grid cms-hours-row' + (h.closed ? ' is-closed' : '');
       row.innerHTML = `
@@ -1320,16 +1324,18 @@
         <input type="text" data-bind="home.hours.${i}.th" value="${esc(h.th)}" />
         <input type="time" data-bind="home.hours.${i}.open" value="${esc(h.open)}" ${h.closed?'disabled':''} />
         <input type="time" data-bind="home.hours.${i}.close" value="${esc(h.close)}" ${h.closed?'disabled':''} />
+        <label class="cms-cb"><input type="checkbox" class="branch-cb" data-bind="home.hours.${i}.branchV" ${bV?'checked':''} ${h.closed?'disabled':''} /> <span>วัชรพล</span></label>
+        <label class="cms-cb"><input type="checkbox" class="branch-cb" data-bind="home.hours.${i}.branchR" ${bR?'checked':''} ${h.closed?'disabled':''} /> <span>ราชพฤกษ์</span></label>
         <label class="cms-cb"><input type="checkbox" data-bind="home.hours.${i}.closed" ${h.closed?'checked':''} /> <span>ปิด</span></label>
       `;
       list.appendChild(row);
     });
     bind(pane, () => {
-      // re-disable open/close fields when checkbox toggles
+      // re-disable time + branch fields when closed checkbox toggles
       pane.querySelectorAll('.cms-hours-row').forEach((r, i) => {
         const closed = !!CMS.getDraft(`home.hours.${i}.closed`);
         r.classList.toggle('is-closed', closed);
-        r.querySelectorAll('input[type=time]').forEach(inp => inp.disabled = closed);
+        r.querySelectorAll('input[type=time], .branch-cb').forEach(inp => inp.disabled = closed);
       });
     });
   }

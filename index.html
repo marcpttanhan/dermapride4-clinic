@@ -540,13 +540,13 @@
       </div>
 
       <div class="dpe-hours-list" data-veil data-veil-delay="1">
-        <div class="dpe-hour-row is-closed" data-day="1"><div class="day">Monday<span class="th">วันจันทร์</span></div><div class="time">— ปิด</div><div></div></div>
-        <div class="dpe-hour-row is-closed" data-day="2"><div class="day">Tuesday<span class="th">วันอังคาร</span></div><div class="time">— ปิด</div><div></div></div>
-        <div class="dpe-hour-row" data-day="3"><div class="day">Wednesday<span class="th">วันพุธ</span></div><div class="time">10:00 — 19:00</div><div></div></div>
-        <div class="dpe-hour-row is-closed" data-day="4"><div class="day">Thursday<span class="th">วันพฤหัสบดี</span></div><div class="time">— ปิด</div><div></div></div>
-        <div class="dpe-hour-row" data-day="5"><div class="day">Friday<span class="th">วันศุกร์</span></div><div class="time">10:00 — 19:00</div><div></div></div>
-        <div class="dpe-hour-row" data-day="6"><div class="day">Saturday<span class="th">วันเสาร์</span></div><div class="time">10:00 — 14:00</div><div></div></div>
-        <div class="dpe-hour-row" data-day="0"><div class="day">Sunday<span class="th">วันอาทิตย์</span></div><div class="time">10:00 — 14:00</div><div></div></div>
+        <div class="dpe-hour-row is-closed" data-day="1"><div class="day">Monday<span class="th">วันจันทร์</span></div><div class="time">— ปิด</div><div class="row-meta"></div></div>
+        <div class="dpe-hour-row is-closed" data-day="2"><div class="day">Tuesday<span class="th">วันอังคาร</span></div><div class="time">— ปิด</div><div class="row-meta"></div></div>
+        <div class="dpe-hour-row" data-day="3"><div class="day">Wednesday<span class="th">วันพุธ</span></div><div class="time">10:00 — 19:00</div><div class="row-meta"><span class="branch-tag">วัชรพล</span><span class="branch-tag">ราชพฤกษ์</span></div></div>
+        <div class="dpe-hour-row is-closed" data-day="4"><div class="day">Thursday<span class="th">วันพฤหัสบดี</span></div><div class="time">— ปิด</div><div class="row-meta"></div></div>
+        <div class="dpe-hour-row" data-day="5"><div class="day">Friday<span class="th">วันศุกร์</span></div><div class="time">10:00 — 19:00</div><div class="row-meta"><span class="branch-tag">วัชรพล</span><span class="branch-tag">ราชพฤกษ์</span></div></div>
+        <div class="dpe-hour-row" data-day="6"><div class="day">Saturday<span class="th">วันเสาร์</span></div><div class="time">10:00 — 14:00</div><div class="row-meta"><span class="branch-tag">วัชรพล</span><span class="branch-tag">ราชพฤกษ์</span></div></div>
+        <div class="dpe-hour-row" data-day="0"><div class="day">Sunday<span class="th">วันอาทิตย์</span></div><div class="time">10:00 — 14:00</div><div class="row-meta"><span class="branch-tag">วัชรพล</span><span class="branch-tag">ราชพฤกษ์</span></div></div>
       </div>
     </div>
   </div>
@@ -793,10 +793,17 @@
     list.innerHTML = hours.map((h, i) => {
       const dayIdx = ({ Sunday:0, Monday:1, Tuesday:2, Wednesday:3, Thursday:4, Friday:5, Saturday:6 })[h.day] ?? '';
       const time = h.closed ? '— ปิด' : `${h.open || ''} — ${h.close || ''}`;
+      let branchHtml = '';
+      if (!h.closed) {
+        // backward-compatible: if neither field is set, treat both as active
+        const fallback = (h.branchV === undefined && h.branchR === undefined);
+        if (h.branchV || fallback) branchHtml += '<span class="branch-tag">วัชรพล</span>';
+        if (h.branchR || fallback) branchHtml += '<span class="branch-tag">ราชพฤกษ์</span>';
+      }
       return `<div class="dpe-hour-row${h.closed ? ' is-closed' : ''}" data-day="${dayIdx}">
         <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
         <div class="time">${time}</div>
-        <div></div>
+        <div class="row-meta">${branchHtml}</div>
       </div>`;
     }).join('');
     // highlight today
@@ -807,7 +814,7 @@
       if (!row.classList.contains('is-closed')) {
         const pill = document.createElement('span');
         pill.className = 'pill'; pill.textContent = 'Today';
-        row.children[2].appendChild(pill);
+        row.querySelector('.row-meta').appendChild(pill);
       }
     }
   }
