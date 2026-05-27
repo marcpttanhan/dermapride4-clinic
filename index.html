@@ -795,10 +795,10 @@
       const time = h.closed ? '— ปิด' : `${h.open || ''} — ${h.close || ''}`;
       let branchHtml = '';
       if (!h.closed) {
-        // backward-compatible: if neither field is set, treat both as active
+        // fallback: old records without either field → show both branches by default
         const fallback = (h.branchV === undefined && h.branchR === undefined);
-        if (h.branchV || fallback) branchHtml += '<span class="branch-tag">วัชรพล</span>';
-        if (h.branchR || fallback) branchHtml += '<span class="branch-tag">ราชพฤกษ์</span>';
+        if (h.branchV === true || fallback) branchHtml += '<span class="branch-tag">วัชรพล</span>';
+        if (h.branchR === true || fallback) branchHtml += '<span class="branch-tag">ราชพฤกษ์</span>';
       }
       return `<div class="dpe-hour-row${h.closed ? ' is-closed' : ''}" data-day="${dayIdx}">
         <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
