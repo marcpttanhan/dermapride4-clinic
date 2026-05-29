@@ -1307,6 +1307,7 @@
           <div class="head">วัชรพล</div>
           <div class="head">ราชพฤกษ์</div>
           <div class="head">หยุด</div>
+          <div class="head">สลับสาขา</div>
         </div>
         <div id="hL"></div>
       </div>
@@ -1315,27 +1316,52 @@
     const list = pane.querySelector('#hL');
     const hours = CMS.getDraft('home.hours') || [];
     hours.forEach((h, i) => {
-      const bV = h.branchV !== false;
-      const bR = h.branchR !== false;
+      const bV     = h.branchV  !== false;
+      const bR     = h.branchR  !== false;
+      const isSplit = !!(h.isSplit  === true || h.isSplit  === 'true');
+      const bV2    = !!(h.branchV2 === true || h.branchV2 === 'true');
+      const bR2    = !!(h.branchR2 === true || h.branchR2 === 'true');
+      const dis    = h.closed ? 'disabled' : '';
+
       const row = document.createElement('div');
       row.className = 'cms-hours-grid cms-hours-row' + (h.closed ? ' is-closed' : '');
       row.innerHTML = `
         <input type="text" data-bind="home.hours.${i}.day" value="${esc(h.day)}" />
         <input type="text" data-bind="home.hours.${i}.th" value="${esc(h.th)}" />
-        <input type="time" data-bind="home.hours.${i}.open" value="${esc(h.open)}" ${h.closed?'disabled':''} />
-        <input type="time" data-bind="home.hours.${i}.close" value="${esc(h.close)}" ${h.closed?'disabled':''} />
-        <label class="cms-cb"><input type="checkbox" class="branch-cb" data-bind="home.hours.${i}.branchV" ${bV?'checked':''} ${h.closed?'disabled':''} /> <span>วัชรพล</span></label>
-        <label class="cms-cb"><input type="checkbox" class="branch-cb" data-bind="home.hours.${i}.branchR" ${bR?'checked':''} ${h.closed?'disabled':''} /> <span>ราชพฤกษ์</span></label>
+        <input type="time" data-bind="home.hours.${i}.open" value="${esc(h.open)}" ${dis} />
+        <input type="time" data-bind="home.hours.${i}.close" value="${esc(h.close)}" ${dis} />
+        <label class="cms-cb"><input type="checkbox" class="branch-cb" data-bind="home.hours.${i}.branchV" ${bV?'checked':''} ${dis} /> <span>วัชรพล</span></label>
+        <label class="cms-cb"><input type="checkbox" class="branch-cb" data-bind="home.hours.${i}.branchR" ${bR?'checked':''} ${dis} /> <span>ราชพฤกษ์</span></label>
         <label class="cms-cb"><input type="checkbox" data-bind="home.hours.${i}.closed" ${h.closed?'checked':''} /> <span>ปิด</span></label>
+        <label class="cms-cb"><input type="checkbox" class="split-cb" data-bind="home.hours.${i}.isSplit" ${isSplit?'checked':''} ${dis} /> <span>สลับสาขา</span></label>
       `;
       list.appendChild(row);
+
+      // Split shift sub-row (shown only when isSplit is active)
+      const splitRow = document.createElement('div');
+      splitRow.className = 'cms-split-row' + (isSplit && !h.closed ? ' is-visible' : '');
+      splitRow.innerHTML = `
+        <span class="cms-split-label">กะ 2</span>
+        <input type="time" data-bind="home.hours.${i}.open2" value="${esc(h.open2 || '00:00')}" ${dis} />
+        <span class="cms-split-sep">—</span>
+        <input type="time" data-bind="home.hours.${i}.close2" value="${esc(h.close2 || '00:00')}" ${dis} />
+        <label class="cms-cb"><input type="checkbox" class="split-branch-cb" data-bind="home.hours.${i}.branchV2" ${bV2?'checked':''} ${dis} /> <span>วัชรพล</span></label>
+        <label class="cms-cb"><input type="checkbox" class="split-branch-cb" data-bind="home.hours.${i}.branchR2" ${bR2?'checked':''} ${dis} /> <span>ราชพฤกษ์</span></label>
+      `;
+      list.appendChild(splitRow);
     });
     bind(pane, () => {
-      // re-disable time + branch fields when closed checkbox toggles
+      // Re-sync disabled states and split row visibility on every change
       pane.querySelectorAll('.cms-hours-row').forEach((r, i) => {
         const closed = !!CMS.getDraft(`home.hours.${i}.closed`);
+        const split  = !!CMS.getDraft(`home.hours.${i}.isSplit`);
         r.classList.toggle('is-closed', closed);
-        r.querySelectorAll('input[type=time], .branch-cb').forEach(inp => inp.disabled = closed);
+        r.querySelectorAll('input[type=time], .branch-cb, .split-cb').forEach(inp => inp.disabled = closed);
+        const splitRow = r.nextElementSibling;
+        if (splitRow && splitRow.classList.contains('cms-split-row')) {
+          splitRow.classList.toggle('is-visible', split && !closed);
+          splitRow.querySelectorAll('input').forEach(inp => inp.disabled = closed);
+        }
       });
     });
   }

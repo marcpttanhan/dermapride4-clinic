@@ -816,8 +816,8 @@
         </div>`;
       }
 
-      // Scenario 2: Split shift — two rows for the same day (boolean or string)
-      if (h.isSplit === true || h.isSplit === 'true') {
+      // Scenario 2: Split shift — two rows for the same day (boolean, string, or numeric 1)
+      if (h.isSplit === true || h.isSplit === 'true' || h.isSplit === 1) {
         return `<div class="dpe-hour-row is-split-primary" data-day="${dayIdx}">
             <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
             <div class="time">${h.open || ''} — ${h.close || ''}</div>
