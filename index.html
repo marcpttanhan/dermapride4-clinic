@@ -792,15 +792,23 @@
     if (!hours.length) return;
     const tagFor = (bV, bR) => {
       let t = '';
-      if (bV === true) t += '<span class="branch-tag">วัชรพล</span>';
-      if (bR === true) t += '<span class="branch-tag">ราชพฤกษ์</span>';
+      if (bV === true || bV === 'true') t += '<span class="branch-tag">วัชรพล</span>';
+      if (bR === true || bR === 'true') t += '<span class="branch-tag">ราชพฤกษ์</span>';
       return t;
     };
     list.innerHTML = hours.map((h, i) => {
-      const dayIdx = ({ Sunday:0, Monday:1, Tuesday:2, Wednesday:3, Thursday:4, Friday:5, Saturday:6 })[h.day] ?? '';
+      const dayIdx = ({
+        Sunday:0, 'วันอาทิตย์':0,
+        Monday:1, 'วันจันทร์':1,
+        Tuesday:2, 'วันอังคาร':2,
+        Wednesday:3, 'วันพุธ':3,
+        Thursday:4, 'วันพฤหัสบดี':4,
+        Friday:5, 'วันศุกร์':5,
+        Saturday:6, 'วันเสาร์':6
+      })[h.day] ?? '';
 
-      // Scenario 1: Closed
-      if (h.closed === true) {
+      // Scenario 1: Closed (boolean or string)
+      if (h.closed === true || h.closed === 'true') {
         return `<div class="dpe-hour-row is-closed" data-day="${dayIdx}">
           <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
           <div class="time">ปิดทำการ</div>
@@ -808,8 +816,8 @@
         </div>`;
       }
 
-      // Scenario 2: Split shift — two rows for the same day
-      if (h.isSplit === true) {
+      // Scenario 2: Split shift — two rows for the same day (boolean or string)
+      if (h.isSplit === true || h.isSplit === 'true') {
         return `<div class="dpe-hour-row is-split-primary" data-day="${dayIdx}">
             <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
             <div class="time">${h.open || ''} — ${h.close || ''}</div>
@@ -824,8 +832,8 @@
 
       // Scenario 3: Regular / legacy single shift (undefined treated as true)
       let tagsHTML = '';
-      if (h.branchV === true || h.branchV === undefined) tagsHTML += '<span class="branch-tag">วัชรพล</span>';
-      if (h.branchR === true || h.branchR === undefined) tagsHTML += '<span class="branch-tag">ราชพฤกษ์</span>';
+      if (h.branchV === true || h.branchV === 'true' || h.branchV === undefined) tagsHTML += '<span class="branch-tag">วัชรพล</span>';
+      if (h.branchR === true || h.branchR === 'true' || h.branchR === undefined) tagsHTML += '<span class="branch-tag">ราชพฤกษ์</span>';
       return `<div class="dpe-hour-row" data-day="${dayIdx}">
         <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
         <div class="time">${h.open || ''} — ${h.close || ''}</div>
