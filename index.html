@@ -795,8 +795,9 @@
       const time = h.closed ? '— ปิด' : `${h.open || ''} — ${h.close || ''}`;
       let tagsHTML = '';
       if (!h.closed) {
-        if (h.branchV === true || h.branchV === undefined) tagsHTML += '<span class="branch-tag">วัชรพล</span>';
-        if (h.branchR === true || h.branchR === undefined) tagsHTML += '<span class="branch-tag">ราชพฤกษ์</span>';
+        const isSplit = h.branchV === true && h.branchR === true;
+        if (h.branchV === true || h.branchV === undefined) tagsHTML += `<span class="branch-tag">วัชรพล${isSplit ? ' (เช้า)' : ''}</span>`;
+        if (h.branchR === true || h.branchR === undefined) tagsHTML += `<span class="branch-tag">ราชพฤกษ์${isSplit ? ' (บ่าย)' : ''}</span>`;
       }
       return `<div class="dpe-hour-row${h.closed ? ' is-closed' : ''}" data-day="${dayIdx}">
         <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
