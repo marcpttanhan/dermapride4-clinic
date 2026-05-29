@@ -790,39 +790,45 @@
     if (!list) return;
     const hours = CMS.get('home.hours') || [];
     if (!hours.length) return;
+    const tagFor = (bV, bR) => {
+      let t = '';
+      if (bV === true) t += '<span class="branch-tag">วัชรพล</span>';
+      if (bR === true) t += '<span class="branch-tag">ราชพฤกษ์</span>';
+      return t;
+    };
     list.innerHTML = hours.map((h, i) => {
       const dayIdx = ({ Sunday:0, Monday:1, Tuesday:2, Wednesday:3, Thursday:4, Friday:5, Saturday:6 })[h.day] ?? '';
 
-      const isBothFalse = h.branchV === false && h.branchR === false;
-      const isClosed    = h.closed || isBothFalse;
-      const isSplit     = h.branchV === true && h.branchR === true;
-
-      let time = '', tagsHTML = '';
-
-      if (isClosed) {
-        time = 'ปิดทำการ';
-      } else if (isSplit) {
-        const tV = h.hoursV || h.hours || '';
-        const tR = h.hoursR || h.hours || '';
-        tagsHTML  = `<span class="branch-tag">วัชรพล (เช้า)<em class="branch-time"> ${tV}</em></span>`;
-        tagsHTML += `<span class="branch-tag">ราชพฤกษ์ (บ่าย)<em class="branch-time"> ${tR}</em></span>`;
-      } else {
-        // Single branch or legacy (undefined treated as true)
-        const showV = h.branchV === true || h.branchV === undefined;
-        const showR = h.branchR === true || h.branchR === undefined;
-        if (showV) {
-          time = time || h.hoursV || h.hours || `${h.open || ''} — ${h.close || ''}`;
-          tagsHTML += '<span class="branch-tag">วัชรพล</span>';
-        }
-        if (showR) {
-          time = time || h.hoursR || h.hours || `${h.open || ''} — ${h.close || ''}`;
-          tagsHTML += '<span class="branch-tag">ราชพฤกษ์</span>';
-        }
+      // Scenario 1: Closed
+      if (h.closed === true) {
+        return `<div class="dpe-hour-row is-closed" data-day="${dayIdx}">
+          <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
+          <div class="time">ปิดทำการ</div>
+          <div class="row-meta"></div>
+        </div>`;
       }
 
-      return `<div class="dpe-hour-row${isClosed ? ' is-closed' : ''}" data-day="${dayIdx}">
+      // Scenario 2: Split shift — two rows for the same day
+      if (h.isSplit === true) {
+        return `<div class="dpe-hour-row is-split-primary" data-day="${dayIdx}">
+            <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
+            <div class="time">${h.open || ''} — ${h.close || ''}</div>
+            <div class="row-meta">${tagFor(h.branchV, h.branchR)}</div>
+          </div>
+          <div class="dpe-hour-row is-split-secondary" data-day="${dayIdx}">
+            <div class="day"></div>
+            <div class="time">${h.open2 || ''} — ${h.close2 || ''}</div>
+            <div class="row-meta">${tagFor(h.branchV2, h.branchR2)}</div>
+          </div>`;
+      }
+
+      // Scenario 3: Regular / legacy single shift (undefined treated as true)
+      let tagsHTML = '';
+      if (h.branchV === true || h.branchV === undefined) tagsHTML += '<span class="branch-tag">วัชรพล</span>';
+      if (h.branchR === true || h.branchR === undefined) tagsHTML += '<span class="branch-tag">ราชพฤกษ์</span>';
+      return `<div class="dpe-hour-row" data-day="${dayIdx}">
         <div class="day">${h.day}<span class="th">${h.th || ''}</span></div>
-        <div class="time">${time}</div>
+        <div class="time">${h.open || ''} — ${h.close || ''}</div>
         <div class="row-meta">${tagsHTML}</div>
       </div>`;
     }).join('');
